@@ -240,8 +240,8 @@ export default function App() {
     setWebhooks([]);
   };
 
-  // Upgraded master premium elevation shadows with level depth (using beautiful 3D off-sets + soft atmospheric layout blur)
-  const premiumElevatedShadow = '0 12px 40px -12px rgba(0,0,0,0.95), 4px 4px 0px 0px #23211F';
+  // Upgraded master premium elevation shadows with level depth (strict Openbricks 2.0 skeuomorphic drop shadow anchor stack)
+  const premiumElevatedShadow = '1px 1px 0px #23211F, 2px 2px 0px #1E1B19, 3px 3px 0px #141211, 4px 4px 0px #0A0908, 5px 5px 0px #000000';
 
   return (
     <div className="min-h-screen bg-[#000000] text-[#9B9691] font-sans antialiased pb-16 flex flex-col selection:bg-amber-500/20 selection:text-white">
@@ -253,15 +253,15 @@ export default function App() {
               S
             </span>
             <div className="flex flex-col">
-              <span className="text-sm font-outfit font-extrabold tracking-wider text-white leading-tight uppercase">STRIPΞ // CRYPTO</span>
-              <span className="text-[10px] text-gray-400 font-mono tracking-tight">INTELLIGENT DECENTRALIZED PAYMENTS</span>
+              <span className="text-sm font-outfit font-extrabold tracking-wider text-white leading-tight uppercase">SETTLΞR // ENGINΞ</span>
+              <span className="text-[10px] text-gray-400 font-mono tracking-tight">AUTONOMOUS MULTI-CHAIN BILLING</span>
             </div>
           </div>
 
           <div className="flex items-center gap-4">
             {/* Live UTC Clock */}
             <span className="hidden sm:inline-block text-[10px] font-mono text-gray-400 uppercase tracking-wider bg-[#141211] border-2 border-[#23211F] px-3 py-1 rounded-lg">
-              NODE TIME: 2026-06-04 02:13 UTC
+              NODE TIME: 2026-06-04 12:18 UTC
             </span>
             <span className="text-xs font-semibold text-white font-mono flex items-center gap-1.5 bg-[#141211] px-3 py-1.5 rounded-lg border-2 border-[#23211F]">
               <span className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse" /> Mainnet-V3 RPC
@@ -294,7 +294,7 @@ export default function App() {
             </span>
           </div>
         )}
-
+ 
         {/* Intro Alert Box */}
         <div 
           className="mb-6 p-4 rounded-2xl bg-[#0A0908] border-2 border-[#23211F] flex flex-col sm:flex-row items-center gap-4 justify-between relative overflow-hidden" 
@@ -309,8 +309,8 @@ export default function App() {
             </div>
             <div>
               <h4 className="text-xs font-outfit font-extrabold text-white tracking-widest uppercase">Quick Sandbox Instructions</h4>
-              <p className="text-xs text-gray-400 mt-1 max-w-2xl leading-normal">
-                This is a fully-fledged crypto payment gateway simulator. Customize payment products inside <strong className="text-amber-500">Active Payment Links</strong> or compile new ones. Then, use the high-fidelity invoice widget on the right to connect simulated MetaMask / Phantom keys, and process EVM transaction blocks to evaluate our developer webhooks.
+              <p className="text-xs text-gray-400 mt-1 max-w-2xl leading-normal font-sans">
+                This is a fully-fledged crypto payment gateway simulator running on <strong className="text-amber-500">SettlerEngine</strong>. Customize payment products inside <strong className="text-amber-500">Active Payment Links</strong> or compile new ones. Then, use the high-fidelity invoice widget on the right to connect simulated MetaMask / Phantom keys, and process transaction blocks to evaluate our developer webhooks.
               </p>
             </div>
           </div>
@@ -388,10 +388,10 @@ export default function App() {
               >
                 <div className="flex items-center gap-2 text-white font-extrabold mb-1 uppercase text-[11px] tracking-wider font-outfit">
                   <BookOpen className="w-4 h-4 text-amber-500" />
-                  Cryptostripe Protocol Overview
+                  SettlerEngine Protocol Overview
                 </div>
-                <p className="text-gray-400 text-xs leading-relaxed">
-                  Cryptostripe resolves multi-chain settlement times by operating secondary state channels and decentralized oracle listening nodes. Customers execute a signature approval, sending tokens to the smart contract, and our system fires off webhooks with verified ledger blocks so your servers deliver products or services in under 8 seconds.
+                <p className="text-gray-400 text-xs leading-relaxed font-sans">
+                  SettlerEngine resolves multi-chain settlement times by operating secondary state channels and decentralized oracle listening nodes. Customers execute a signature approval, sending tokens to the smart contract, and our system fires off webhooks with verified ledger blocks so your servers deliver products or services in under 8 seconds.
                 </p>
                 <div className="flex gap-2.5 mt-2">
                   <span className="text-[10px] font-mono text-gray-400 bg-[#141211] border-2 border-[#23211F] px-2.5 py-1 rounded-lg">
@@ -412,7 +412,7 @@ export default function App() {
       {/* Aesthetic Footer */}
       <footer className="mt-20 border-t-2 border-[#23211F] py-8 bg-[#0A0908] text-center text-xs text-gray-500">
         <div className="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <p className="font-medium">© 2026 Cryptostripe. Crafted in Pitch-Dark Sandbox Space.</p>
+          <p className="font-medium">© 2026 SettlerEngine. Crafted in Pitch-Dark Sandbox Space.</p>
           <div className="flex gap-4 font-mono text-[10px]">
             <span className="hover:text-amber-500 transition-colors cursor-pointer">SMART CONTRACT: 0X92...E10B</span>
             <span className="hover:text-amber-500 transition-colors cursor-pointer">DOCUMENTATION</span>

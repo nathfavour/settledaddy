@@ -442,9 +442,9 @@ export default function DeveloperDashboard({
             
             <div className="p-3.5 rounded-xl bg-[#0A0908] border-2 border-[#23211F] text-[11px] font-mono text-gray-300 overflow-x-auto select-all max-h-[125px] shadow-[inset_0_2px_4px_rgba(0,0,0,0.8)]">
               {docTab === 'react' && (
-                <pre>{`import { loadCryptoGateway } from '@cryptostripe/react';
+                <pre>{`import { loadSettlerEngine } from '@settlerengine/react';
 
-const gateway = await loadCryptoGateway({
+const gateway = await loadSettlerEngine({
   publishableKey: "pk_test_crypto_5a..."
 });
 
@@ -454,7 +454,7 @@ const { txHash, status } = await gateway.checkout({
 });`}</pre>
               )}
               {docTab === 'curl' && (
-                <pre>{`curl -X POST https://api.cryptostripe.com/v1/payment_intents \\
+                <pre>{`curl -X POST https://api.settlerengine.com/v1/payment_intents \\
   -u sk_test_crypto_921ff390be103f: \\
   -d amount="${paymentLinks.find(l=>l.id===activePaymentLinkId)?.amountUSD || 49.00}" \\
   -d currency="usd" \\

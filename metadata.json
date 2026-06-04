@@ -1,6 +1,6 @@
 {
-  "name": "Crypto Payment Gateway",
-  "description": "An interactive crypto payment checkout gateway and merchant developer dashboard mimicking Stripe.",
+  "name": "SettlerEngine",
+  "description": "Premium multi-chain decentralized payment gateway with developer dashboard following Openbricks 2.0 aesthetics.",
   "requestFramePermissions": [],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }
