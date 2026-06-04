@@ -1,0 +1,36 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", system-ui, sans-serif;
+  --font-outfit: "Outfit", sans-serif;
+  --font-space-grotesk: "Space Grotesk", sans-serif;
+  --font-mono: "JetBrains Mono", monospace;
+}
+
+/* Custom gorgeous thin scrollbar matching premium Openbricks dark aesthetic */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #0A0908;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #23211F;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #1E1B19;
+}
+
+@layer base {
+  body {
+    background-color: #000000;
+    color: #9B9691;
+    font-family: var(--font-sans);
+  }
+}
