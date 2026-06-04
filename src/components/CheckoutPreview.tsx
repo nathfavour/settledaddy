@@ -170,39 +170,39 @@ export default function CheckoutPreview({
     setTimeout(() => setCopiedHash(false), 2000);
   };
 
-  const tactileShadow = '1px 1px 0px #23211F, 2px 2px 0px #1E1B19, 3px 3px 0px #141211, 4px 4px 0px #0A0908, 5px 5px 0px #000000';
+  const tactileShadow = '0 12px 32px -10px rgba(0,0,0,0.92), 4px 4px 0px 0px #23211F';
 
   return (
     <div 
-      className="p-6 rounded-lg bg-[#0A0908] border-2 border-[#23211F] flex flex-col gap-5 relative w-full"
+      className="p-6 rounded-2xl bg-[#0A0908] border-2 border-[#23211F] flex flex-col gap-5 relative w-full transition-all duration-300 hover:border-[#38332E]"
       style={{ boxShadow: tactileShadow }}
     >
       {/* Brand Watermark Overlay */}
-      <div className="absolute top-0 right-0 left-0 h-[3px] bg-gradient-to-r from-[#23211F] via-amber-500/30 to-[#23211F]" />
+      <div className="absolute top-0 right-0 left-0 h-[4px] bg-gradient-to-r from-transparent via-amber-500/40 to-transparent" />
 
       {/* Title */}
-      <div className="flex justify-between items-center border-b border-[#23211F] pb-4">
+      <div className="flex justify-between items-center border-b-2 border-[#23211F] pb-4">
         <div className="flex items-center gap-2">
           <ShieldCheck className="w-5 h-5 text-amber-500" />
-          <h2 className="text-sm font-outfit font-semibold text-white tracking-widest uppercase">Decentralized Checkout link</h2>
+          <h2 className="text-xs font-outfit font-extrabold text-white tracking-widest uppercase">Decentralized Checkout Link</h2>
         </div>
-        <span className="text-[10px] font-mono font-medium text-gray-500 flex items-center gap-1.5 bg-[#141211] px-2 py-0.5 rounded border border-[#23211F]">
-          <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-ping"></span> Simulator Active
+        <span className="text-[10px] font-mono font-bold text-emerald-400 flex items-center gap-1.5 bg-[#141211] px-2.5 py-1 rounded-lg border-2 border-[#23211F]">
+          <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> Active
         </span>
       </div>
 
       {/* Left side Checkout Preview summary */}
-      <div className="p-4 rounded bg-[#141211] border border-[#23211F] flex flex-col gap-2 relative">
-        <div className="flex justify-between items-start">
+      <div className="p-4 rounded-xl bg-[#141211] border-2 border-[#23211F] flex flex-col gap-2 relative shadow-[inset_0_2px_4px_rgba(0,0,0,0.8)]">
+        <div className="flex justify-between items-start gap-4">
           <div className="max-w-[70%]">
-            <span className="text-[10px] font-semibold text-gray-500 font-mono">PRODUCT RECEIVING INVOICE</span>
-            <h4 className="text-base font-outfit font-semibold text-white mt-0.5 leading-snug">{paymentLink.name}</h4>
+            <span className="text-[9px] font-mono font-bold text-gray-500 uppercase tracking-wider">PRODUCT RECEIVING INVOICE</span>
+            <h4 className="text-sm font-outfit font-extrabold text-white mt-1 leading-snug">{paymentLink.name}</h4>
             <p className="text-xs text-gray-400 mt-1">{paymentLink.description || 'Full instant privileges allocated.'}</p>
           </div>
-          <div className="text-right">
-            <span className="text-xs text-gray-500 font-mono">TOTAL DUE</span>
-            <div className="text-xl font-outfit font-bold text-white leading-none mt-1">${paymentLink.amountUSD.toFixed(2)}</div>
-            <span className="text-[10px] text-gray-500 font-mono block mt-1">USD Value Pegged</span>
+          <div className="text-right flex-shrink-0">
+            <span className="text-[9px] font-mono font-bold text-gray-500 uppercase tracking-wider">TOTAL DUE</span>
+            <div className="text-xl font-outfit font-extrabold text-white leading-none mt-1">${paymentLink.amountUSD.toFixed(2)}</div>
+            <span className="text-[9px] text-gray-500 font-mono block mt-1.5 font-bold uppercase tracking-tight">USD PEG</span>
           </div>
         </div>
       </div>
@@ -212,40 +212,40 @@ export default function CheckoutPreview({
         {phase === 'form' && (
           <motion.div 
             key="form"
-            initial={{ opacity: 0, y: 5 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -5 }}
+            initial={{ opacity: 0, scale: 0.98 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.98 }}
             className="flex flex-col gap-4"
           >
             <div className="flex flex-col gap-3">
               <div className="flex flex-col gap-1.5">
-                <label htmlFor="cemail" className="text-[10px] font-mono text-gray-400">CUSTOMER EMAIL (RECORDS & ALERTS)</label>
+                <label htmlFor="cemail" className="text-[9px] font-mono font-bold text-gray-400 uppercase tracking-tight">CUSTOMER EMAIL (RECORDS & ALERTS)</label>
                 <input 
                   id="cemail"
                   type="email" 
                   placeholder="name@address.com" 
                   value={customerEmail}
                   onChange={(e) => setCustomerEmail(e.target.value)}
-                  className="px-3 py-2 text-sm text-white rounded bg-[#0A0908] border border-[#23211F] focus:outline-none focus:ring-1 focus:ring-amber-500/40 font-space-grotesk tracking-wide w-full"
+                  className="px-3 py-2 text-xs text-white rounded-xl bg-[#141211] border-2 border-[#23211F] focus:outline-none focus:border-amber-500/80 font-space-grotesk tracking-wide w-full"
                 />
               </div>
 
               <div className="flex flex-col gap-1.5">
-                <label htmlFor="cname" className="text-[10px] font-mono text-gray-400">CUSTOMER FULL NAME</label>
+                <label htmlFor="cname" className="text-[9px] font-mono font-bold text-gray-400 uppercase tracking-tight">CUSTOMER FULL NAME</label>
                 <input 
                   id="cname"
                   type="text" 
                   placeholder="Satoshi Nakamoto" 
                   value={customerName}
                   onChange={(e) => setCustomerName(e.target.value)}
-                  className="px-3 py-2 text-sm text-white rounded bg-[#0A0908] border border-[#23211F] focus:outline-none focus:ring-1 focus:ring-amber-500/40 font-space-grotesk tracking-wide w-full"
+                  className="px-3 py-2 text-xs text-white rounded-xl bg-[#141211] border-2 border-[#23211F] focus:outline-none focus:border-amber-500/80 font-space-grotesk tracking-wide w-full"
                 />
               </div>
             </div>
 
             {/* Selecting Crypto Coin */}
             <div className="flex flex-col gap-2 mt-1">
-              <label className="text-[10px] font-mono text-gray-400 uppercase">SELECT CRYPTO PROTOCOL METHOD</label>
+              <label className="text-[9px] font-mono font-bold text-gray-400 uppercase tracking-wider">SELECT CRYPTO PROTOCOL METHOD</label>
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
                 {(Object.keys(SUPPORTED_CRPYTOS) as CryptoSymbol[]).map((sym) => {
                   const checkAsset = SUPPORTED_CRPYTOS[sym];
@@ -255,17 +255,17 @@ export default function CheckoutPreview({
                       key={sym}
                       type="button"
                       onClick={() => setSelectedCrypto(sym)}
-                      className={`p-3 rounded border text-left cursor-pointer transition-all flex flex-col items-start gap-1 justify-between ${
+                      className={`p-3 rounded-xl border-2 text-left cursor-pointer transition-all flex flex-col items-start gap-1 justify-between ${
                         isCoinSelected 
                           ? 'border-amber-500 bg-[#1E1B19]' 
-                          : 'border-[#23211F] bg-[#141211] hover:bg-[#1E1B19]'
+                          : 'border-[#23211F] bg-[#141211] hover:bg-[#1E1B19] hover:border-[#38332E]'
                       }`}
                     >
                       <div className="flex items-center gap-1.5">
-                        <span className="text-sm">{checkAsset.icon}</span>
-                        <span className="text-[10px] font-mono font-bold text-white">{sym}</span>
+                        <span className="text-base">{checkAsset.icon}</span>
+                        <span className="text-[10px] font-mono font-extrabold text-white">{sym}</span>
                       </div>
-                      <span className="text-[9px] text-gray-400 font-mono mt-2">${checkAsset.usdPrice.toLocaleString(undefined, { maximumFractionDigits: 1 })}</span>
+                      <span className="text-[9px] text-gray-400 font-mono mt-2 font-bold">${checkAsset.usdPrice.toLocaleString(undefined, { maximumFractionDigits: 0 })}</span>
                     </button>
                   );
                 })}
@@ -276,7 +276,7 @@ export default function CheckoutPreview({
             <button
               type="button"
               onClick={() => setPhase('wallet_connect')}
-              className="w-full py-3 rounded text-sm font-semibold font-space-grotesk text-black bg-amber-500 hover:bg-amber-400 active:scale-98 transition-all flex items-center justify-center gap-2 cursor-pointer mt-2"
+              className="w-full py-3 rounded-xl text-xs font-extrabold font-space-grotesk text-black bg-amber-500 hover:bg-amber-400 active:scale-98 transition-all flex items-center justify-center gap-2 cursor-pointer mt-2 shadow-[2px_2px_0px_#000] hover:shadow-[3px_3px_0px_#000]"
             >
               Continue to Smart Wallet Selection <ArrowRight className="w-4 h-4 text-black" />
             </button>
@@ -287,32 +287,32 @@ export default function CheckoutPreview({
         {phase === 'wallet_connect' && (
           <motion.div 
             key="wallets"
-            initial={{ opacity: 0, y: 5 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -5 }}
+            initial={{ opacity: 0, scale: 0.98 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.98 }}
             className="flex flex-col gap-4"
           >
             <button 
               type="button"
               onClick={() => setPhase('form')}
-              className="text-xs text-gray-400 hover:text-white flex items-center gap-1.5 self-start cursor-pointer transition-colors"
+              className="text-xs text-gray-400 hover:text-white flex items-center gap-1.5 self-start cursor-pointer transition-colors font-semibold"
             >
-              <ArrowLeft className="w-3.5 h-3.5" /> Back to details Form
+              <ArrowLeft className="w-3.5 h-3.5 animate-pulse" /> Back to details Form
             </button>
 
             <div className="flex flex-col gap-2 mt-1">
-              <span className="text-[10px] font-mono text-gray-400 block uppercase">Compatible Wallet Clients</span>
+              <span className="text-[9px] font-mono font-bold text-gray-500 block uppercase tracking-wider">Compatible Wallet Clients</span>
               
               {isWalletConnecting ? (
-                <div className="p-8 rounded border-2 border-dashed border-[#23211F] bg-[#141211] flex flex-col items-center justify-center gap-3 text-center">
+                <div className="p-8 rounded-2xl border-2 border-dashed border-[#23211F] bg-[#141211] flex flex-col items-center justify-center gap-3.5 text-center shadow-[inset_0_2px_4px_rgba(0,0,0,0.8)]">
                   <Loader2 className="w-8 h-8 text-amber-500 animate-spin" />
                   <div>
-                    <h5 className="text-sm font-semibold text-white font-outfit">Simulating Secure Handshake</h5>
-                    <p className="text-xs text-amber-500 font-mono mt-1.5 bg-amber-950/20 px-3 py-1 rounded border border-amber-500/30">
+                    <h5 className="text-xs font-extrabold text-white font-outfit uppercase tracking-wider">Simulating Secure Handshake</h5>
+                    <p className="text-[10px] text-amber-500 font-mono mt-2 bg-amber-950/20 px-3 py-1.5 rounded-xl border-2 border-amber-500/30 font-bold max-w-xs break-words">
                       {walletConnectionStep}
                     </p>
                   </div>
-                  <span className="text-[10px] text-gray-400 max-w-[80%] font-medium">Verify your browser extension extension prompt to simulate consent signing.</span>
+                  <span className="text-[10px] text-gray-500 max-w-[80%] font-semibold leading-normal">Verify your browser extension extension prompt to simulate consent signing.</span>
                 </div>
               ) : (
                 <div className="flex flex-col gap-2.5">
@@ -335,13 +335,13 @@ export default function CheckoutPreview({
                         key={w}
                         type="button"
                         onClick={() => tackleConnectWallet(w)}
-                        className="w-full flex items-center justify-between p-3.5 rounded border border-[#23211F] bg-[#141211] hover:bg-[#1E1B19] text-left cursor-pointer transition-all active:translate-x-0.5"
+                        className="w-full flex items-center justify-between p-4 rounded-xl border-2 border-[#23211F] bg-[#141211] hover:bg-[#1E1B19] text-left cursor-pointer transition-all hover:border-[#38332E] shadow-[1px_1px_0px_#000] hover:shadow-[3px_3px_0px_#000]"
                       >
                         <div className="flex items-center gap-3">
                           <span className="text-2xl">{logo}</span>
                           <div>
-                            <span className="text-xs font-semibold text-white font-outfit block">{text}</span>
-                            <span className="text-[10.5px] text-gray-400 font-mono">{sub}</span>
+                            <span className="text-xs font-bold text-white font-outfit block">{text}</span>
+                            <span className="text-[10px] text-gray-400 font-mono font-medium">{sub}</span>
                           </div>
                         </div>
                         <ArrowRight className="w-4 h-4 text-gray-500" />
@@ -358,71 +358,71 @@ export default function CheckoutPreview({
         {phase === 'pay' && (
           <motion.div 
             key="pay"
-            initial={{ opacity: 0, y: 5 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -5 }}
+            initial={{ opacity: 0, scale: 0.98 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.98 }}
             className="flex flex-col gap-4"
           >
             {/* Wallet header information */}
-            <div className="p-3.5 rounded bg-[#141211] border border-[#23211F] flex items-center justify-between">
-              <div className="flex items-center gap-2">
+            <div className="p-3.5 rounded-xl bg-[#141211] border-2 border-[#23211F] flex items-center justify-between shadow-[1px_1px_0px_#000]">
+              <div className="flex items-center gap-2.5">
                 <span className="text-xl">{selectedWallet === 'metamask' ? '🔥' : selectedWallet === 'phantom' ? '👻' : '🛡️'}</span>
                 <div>
-                  <span className="text-[10px] font-mono text-gray-500 block uppercase">Wallet Connected</span>
-                  <span className="text-xs font-mono font-medium text-white select-all">
+                  <span className="text-[9px] font-mono font-bold text-gray-500 block uppercase">Wallet Connected</span>
+                  <span className="text-xs font-mono font-bold text-white select-all">
                     {connectedWalletAddress?.substring(0, 8)}...{connectedWalletAddress?.substring(connectedWalletAddress.length - 8)}
                   </span>
                 </div>
               </div>
               <div className="text-right">
-                <span className="text-[10px] font-mono text-gray-500 block">BALANCE</span>
-                <span className="text-xs font-mono font-bold text-amber-500">
-                  {walletBalance.toFixed(selectedCrypto === 'USDC' ? 2 : 4)} {selectedCrypto}
+                <span className="text-[9px] font-mono font-bold text-gray-500 block">BALANCE</span>
+                <span className="text-xs font-mono font-extrabold text-amber-500">
+                  {walletBalance.toFixed(selectedCrypto === 'USDC' ? 1 : 4)} {selectedCrypto}
                 </span>
               </div>
             </div>
 
             {/* Direct Conversion Ledger details */}
-            <div className="p-4 rounded bg-[#0A0908] border-2 border-[#23211F] flex flex-col gap-2">
-              <span className="text-[10px] font-mono text-gray-400 block uppercase">DECENTRALIZED MEMPOOL ESCROW EST.</span>
+            <div className="p-4 rounded-xl bg-[#0A0908] border-2 border-[#23211F] flex flex-col gap-2 shadow-[inset_0_2px_4px_rgba(0,0,0,0.8)]">
+              <span className="text-[9px] font-mono font-bold text-gray-400 block uppercase tracking-wider">DECENTRALIZED MEMPOOL ESCROW EST.</span>
               
-              <div className="flex justify-between items-center text-xs text-gray-300">
+              <div className="flex justify-between items-center text-xs text-gray-400 font-medium">
                 <span>Calculated Exchange Rate</span>
-                <span className="font-mono">1 {selectedCrypto} = ${cryptoPrice.toFixed(2)}</span>
+                <span className="font-mono font-bold text-gray-300">1 {selectedCrypto} = ${cryptoPrice.toFixed(2)}</span>
               </div>
 
-              <div className="flex justify-between items-center text-xs text-gray-300 border-t border-[#23211F] pt-2 mt-1">
+              <div className="flex justify-between items-center text-xs text-gray-400 border-t-2 border-[#23211F] pt-2 mt-1 font-medium">
                 <span>Subtotal ({selectedCrypto})</span>
-                <span className="font-mono font-semibold text-white">{cryptoAmountNeeded.toFixed(6)} {selectedCrypto}</span>
+                <span className="font-mono font-bold text-white bg-[#141211] px-1.5 py-0.5 rounded border border-[#23211F]">{cryptoAmountNeeded.toFixed(6)} {selectedCrypto}</span>
               </div>
 
-              <div className="flex justify-between items-center text-xs text-gray-300">
+              <div className="flex justify-between items-center text-xs text-gray-400 font-medium">
                 <span className="flex items-center gap-1">Gas Cost Estimator <HelpCircle className="w-3.5 h-3.5 text-gray-500" title="Blockchain transaction fee" /></span>
-                <span className="font-mono text-orange-400">+{gasAmountInCrypto.toFixed(6)} {selectedCrypto} (~${activeAsset.gasUSD.toFixed(2)})</span>
+                <span className="font-mono text-orange-400 font-bold">+{gasAmountInCrypto.toFixed(6)} {selectedCrypto} (~${activeAsset.gasUSD.toFixed(2)})</span>
               </div>
 
-              <div className="flex justify-between items-center text-sm text-white font-bold border-t border-[#23211F] pt-2 mt-1">
-                <span>Total Crypto Charged</span>
-                <span className="font-mono text-amber-500">{cryptoTotalAmount.toFixed(6)} {selectedCrypto}</span>
+              <div className="flex justify-between items-center text-xs text-white font-bold border-t-2 border-[#23211F] pt-2 mt-1">
+                <span className="uppercase text-[11px] tracking-wider">Total Crypto Charged</span>
+                <span className="font-mono text-amber-500 text-sm">{cryptoTotalAmount.toFixed(6)} {selectedCrypto}</span>
               </div>
             </div>
 
             {/* Interactive Settle Button */}
-            <div className="flex flex-col gap-2">
+            <div className="flex flex-col gap-2 mt-1">
               <button
                 type="button"
                 onClick={handleProcessDirectPayment}
-                className="w-full py-3.5 rounded text-sm font-semibold font-space-grotesk text-black bg-amber-500 hover:bg-amber-400 active:scale-98 transition-all flex items-center justify-center gap-2 cursor-pointer"
+                className="w-full py-4 rounded-xl text-xs font-extrabold font-space-grotesk text-black bg-amber-500 hover:bg-amber-400 active:scale-98 transition-all flex items-center justify-center gap-2 cursor-pointer shadow-[2px_2px_0px_#000]"
               >
-                Sign & Transmit {cryptoTotalAmount.toFixed(4)} {selectedCrypto} Payment <Sparkles className="w-4 h-4 fill-black/20" />
+                Sign & Transmit {cryptoTotalAmount.toFixed(4)} {selectedCrypto} Payment <Sparkles className="w-4 h-4 fill-black/20 animate-pulse" />
               </button>
               
               <button
                 type="button"
                 onClick={() => setPhase('wallet_connect')}
-                className="w-full py-1.5 text-xs text-gray-400 hover:text-white font-mono cursor-pointer transition-all"
-              >
-                Disconnect & Use Different Wallet
+                className="w-full py-2 text-[10px] text-gray-500 hover:text-white font-mono font-bold tracking-wider cursor-pointer uppercase transition-colors"
+               >
+                Disconnect & Change Wallet
               </button>
             </div>
           </motion.div>
@@ -434,7 +434,7 @@ export default function CheckoutPreview({
             key="processing"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            className="py-12 px-4 rounded-lg bg-[#141211] border border-[#23211F] flex flex-col items-center justify-center text-center gap-4"
+            className="py-12 px-4 rounded-xl bg-[#141211] border-2 border-[#23211F] flex flex-col items-center justify-center text-center gap-4"
           >
             <div className="relative w-16 h-16 flex items-center justify-center">
               <svg className="absolute w-full h-full rotate-270">
@@ -461,12 +461,12 @@ export default function CheckoutPreview({
             </div>
 
             <div>
-              <h4 className="text-base font-outfit font-semibold text-white">Broadcasting On-Chain</h4>
-              <p className="text-[11px] text-amber-500 font-mono mt-2.5 bg-amber-950/20 px-4 py-1.5 rounded border border-amber-500/30">
+              <h4 className="text-xs font-outfit font-extrabold text-white uppercase tracking-wider">Broadcasting On-Chain</h4>
+              <p className="text-[10px] text-amber-500 font-mono mt-3.5 bg-amber-950/20 px-4 py-2 rounded-xl border-2 border-amber-500/30 font-bold max-w-xs break-words leading-relaxed">
                 {paymentStep}
               </p>
-              <div className="text-[10px] text-gray-500 font-mono mt-4">
-                Tx Status: BROADCASTING ({paymentProgress}% Consensus Verified)
+              <div className="text-[10px] text-gray-500 font-mono mt-5 font-bold uppercase tracking-wider">
+                Consensus status: {paymentProgress}% verified
               </div>
             </div>
           </motion.div>
@@ -485,42 +485,42 @@ export default function CheckoutPreview({
             </div>
 
             <div>
-              <h3 className="text-xl font-outfit font-bold text-white leading-none">Payment Succeeded</h3>
-              <p className="text-xs text-gray-400 mt-2">Decentralized asset ledger verified successfully.</p>
+              <h3 className="text-lg font-outfit font-extrabold text-white uppercase tracking-wider">Payment Succeeded</h3>
+              <p className="text-xs text-gray-400 mt-1">Decentralized asset ledger verified successfully.</p>
             </div>
 
             {/* Receipt Summary details */}
-            <div className="w-full text-left p-4 rounded bg-[#141211] border border-[#23211F] text-xs flex flex-col gap-2">
-              <div className="flex justify-between items-center text-gray-400 border-b border-[#23211F] pb-2 mb-1">
-                <span>RECEIPT REFERENCE</span>
+            <div className="w-full text-left p-4 rounded-xl bg-[#141211] border-2 border-[#23211F] text-xs flex flex-col gap-2.5 shadow-[inset_0_2px_4px_rgba(0,0,0,0.8)]">
+              <div className="flex justify-between items-center text-gray-400 border-b-2 border-[#23211F] pb-2 mb-1">
+                <span className="font-bold text-[10px]">RECEIPT REFERENCE</span>
                 <span className="font-mono text-white text-[11px] font-bold">
                   REC-{Math.floor(100000 + Math.random() * 900000)}
                 </span>
               </div>
-              <div className="flex justify-between items-center text-gray-400">
+              <div className="flex justify-between items-center text-gray-400 font-semibold">
                 <span>Settled Amount USD</span>
-                <span className="text-white font-semibold">${paymentLink.amountUSD.toFixed(2)}</span>
+                <span className="text-white font-bold">${paymentLink.amountUSD.toFixed(2)}</span>
               </div>
-              <div className="flex justify-between items-center text-gray-400">
+              <div className="flex justify-between items-center text-gray-400 font-semibold">
                 <span>Crypto Settled</span>
-                <span className="text-amber-500 font-mono font-bold">{(paymentLink.amountUSD / cryptoPrice).toFixed(6)} {selectedCrypto}</span>
+                <span className="text-amber-500 font-mono font-bold bg-[#0A0908] px-2 py-0.5 rounded border border-[#23211F]">{(paymentLink.amountUSD / cryptoPrice).toFixed(6)} {selectedCrypto}</span>
               </div>
-              <div className="flex justify-between items-center text-gray-400">
+              <div className="flex justify-between items-center text-gray-400 font-semibold">
                 <span>Wallet Protocol Charged</span>
                 <span className="font-mono text-gray-300 uppercase">{selectedWallet} API</span>
               </div>
               
-              <div className="border-t border-[#23211F] pt-2 mt-1">
-                <span className="text-[9px] font-mono text-gray-500 block">BLOCKCHAIN TRANSACTION ID</span>
+              <div className="border-t-2 border-[#23211F] pt-2 mt-1">
+                <span className="text-[9px] font-mono text-gray-500 block uppercase font-bold tracking-wider">BLOCKCHAIN TRANSACTION ID</span>
                 <div className="flex items-center justify-between gap-1.5 mt-1">
-                  <span className="font-mono text-[10.5px] text-gray-400 select-all truncate break-all pr-2 max-w-[80%]">
+                  <span className="font-mono text-[10px] text-gray-400 select-all truncate break-all pr-2 max-w-[80%]">
                     {simulatedTxHash}
                   </span>
                   <div className="flex items-center gap-1 flex-shrink-0">
                     <button
                       type="button"
                       onClick={handleCopyHash}
-                      className="p-1 hover:bg-[#1E1B19] rounded cursor-pointer text-gray-400 hover:text-white transition-all"
+                      className="p-1.5 hover:bg-[#1E1B19] rounded-lg border border-transparent hover:border-[#23211F] cursor-pointer text-gray-400 hover:text-white transition-all"
                       title="Copy Transaction Hash"
                     >
                       {copiedHash ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
@@ -529,7 +529,7 @@ export default function CheckoutPreview({
                       href={`https://explorer.solana.com/tx/${simulatedTxHash}`}
                       target="_blank"
                       rel="noopener noreferrer nofollow"
-                      className="p-1 hover:bg-[#1E1B19] rounded cursor-pointer text-gray-400 hover:text-white transition-all"
+                      className="p-1.5 hover:bg-[#1E1B19] rounded-lg border border-transparent hover:border-[#23211F] cursor-pointer text-gray-400 hover:text-white transition-all"
                       title="Inspect Ledger Block"
                     >
                       <ExternalLink className="w-3.5 h-3.5" />
@@ -546,7 +546,7 @@ export default function CheckoutPreview({
                 setConnectedWalletAddress(null);
                 setSelectedWallet(null);
               }}
-              className="w-full mt-2 py-3 rounded text-xs font-semibold font-space-grotesk text-white bg-[#141211] border-2 border-[#23211F] hover:bg-[#1E1B19] active:scale-98 transition-all cursor-pointer"
+              className="w-full mt-2 py-3 rounded-xl text-xs font-bold font-space-grotesk text-white bg-[#141211] border-2 border-[#23211F] hover:bg-[#1E1B19] hover:border-[#38332E] active:scale-98 transition-all cursor-pointer shadow-[2px_2px_0px_#000]"
             >
               Securely Reset Simulator & Launch New Link
             </button>
