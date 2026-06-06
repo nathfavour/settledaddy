@@ -22,6 +22,8 @@ interface DeveloperDashboardProps {
   activePaymentLinkId: string;
   onCreatePaymentLink: (name: string, description: string, price: number) => void;
   onClearLogs: () => void;
+  activeTab?: 'links' | 'transactions' | 'webhooks' | 'api';
+  onTabChange?: (tab: 'links' | 'transactions' | 'webhooks' | 'api') => void;
 }
 
 export default function DeveloperDashboard({
@@ -34,7 +36,9 @@ export default function DeveloperDashboard({
   onSelectPaymentLink,
   activePaymentLinkId,
   onCreatePaymentLink,
-  onClearLogs
+  onClearLogs,
+  activeTab: controlledTab,
+  onTabChange
 }: DeveloperDashboardProps) {
   // Local state for API keys display
   const [showSecretKey, setShowSecretKey] = useState(false);
@@ -47,7 +51,14 @@ export default function DeveloperDashboard({
   const [isCreatingLink, setIsCreatingLink] = useState(false);
 
   // Active Menu Tab inside the lower workspace
-  const [activeTab, setActiveTab] = useState<'links' | 'transactions' | 'webhooks' | 'api'>('links');
+  const [localTab, setLocalTab] = useState<'links' | 'transactions' | 'webhooks' | 'api'>('links');
+  const activeTab = controlledTab || localTab;
+  const setActiveTab = (tab: 'links' | 'transactions' | 'webhooks' | 'api') => {
+    setLocalTab(tab);
+    if (onTabChange) {
+      onTabChange(tab);
+    }
+  };
 
   // Search filters
   const [linkSearch, setLinkSearch] = useState('');

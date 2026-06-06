@@ -1,12 +1,19 @@
-export type CryptoSymbol = 'BTC' | 'ETH' | 'SOL' | 'USDC';
+export type CryptoSymbol = string;
 
 export interface CryptoAsset {
   symbol: CryptoSymbol;
   name: string;
-  icon: string; // Color accent or representation
-  network: string; // e.g. "Bitcoin Mainnet", "Ethereum Mainnet", "Solana Mainnet"
+  icon: string; // Emoji or representation
+  network: string; // e.g. "Bitcoin Mainnet", "Ethereum Mainnet"
   usdPrice: number; // Simulated live conversion rate
   gasUSD: number; // Cost of simulated gas fee
+  rpcUrl: string; // Custom RPC node endpoint
+  latencyMs: number; // Simulated ping latency
+  blockHeight: number; // Active network height
+  status: 'connected' | 'degraded' | 'disconnected';
+  isActive: boolean; // Is dynamic payment acceptance enabled for this chain
+  type: string; // L1 / L2 / sidechain / Rollup
+  isExtension?: boolean; // Was to be installed via developer hub
 }
 
 export interface PaymentLink {

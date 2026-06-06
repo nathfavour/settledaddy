@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { 
   Coins, Terminal, Shield, ArrowUpRight, Cpu, HelpCircle, 
-  Layers, Wallet, BookOpen, AlertCircle, Sparkles, LogOut, CheckCircle2
+  Layers, Wallet, BookOpen, AlertCircle, Sparkles, LogOut, CheckCircle2,
+  LayoutDashboard, CreditCard, Activity, Menu, X, List, Sliders, Globe
 } from 'lucide-react';
-import { PaymentLink, Transaction, WebhookEvent, MerchantBalance, CryptoSymbol } from './types';
+import { PaymentLink, Transaction, WebhookEvent, MerchantBalance, CryptoSymbol, CryptoAsset } from './types';
 import DeveloperDashboard from './components/DeveloperDashboard';
 import CheckoutPreview from './components/CheckoutPreview';
+import RpcConsole from './components/RpcConsole';
 
 const INITIAL_BALANCES: MerchantBalance = {
   totalProcessedUSD: 142490.00,
@@ -117,23 +119,53 @@ export default function App() {
   // Test Mode switch
   const [testMode, setTestMode] = useState<boolean>(true);
 
-  // Mobile navigation tab state ('dashboard' or 'checkout')
-  const [activeMobileTab, setActiveMobileTab] = useState<'dashboard' | 'checkout'>('dashboard');
+  // Layout navigation state
+  // 'dashboard' controls showing DeveloperDashboard component
+  const [activeView, setActiveView] = useState<'dashboard' | 'checkout' | 'rpcs'>('dashboard');
+  
+  // Controls which dashboard sub-tab is currently visible
+  const [innerDashboardTab, setInnerDashboardTab] = useState<'links' | 'transactions' | 'webhooks' | 'api'>('links');
 
-  // Core global database states
+  // Core global databases & on-chain dynamic assets config state
+  const [supportedAssets, setSupportedAssets] = useState<CryptoAsset[]>([
+    { symbol: 'USDC', name: 'USD Coin', icon: '🔵', network: 'EVM Polygon Network', usdPrice: 1.00, gasUSD: 0.15, rpcUrl: 'https://polygon-mainnet.g.alchemy.com/v2/demo', latencyMs: 15, blockHeight: 58912401, status: 'connected', isActive: true, type: 'EVM Sidechain' },
+    { symbol: 'ETH', name: 'Ethereum', icon: '💎', network: 'Ethereum Layer 1', usdPrice: 3254.12, gasUSD: 4.80, rpcUrl: 'https://mainnet.infura.io/v3/demo', latencyMs: 12, blockHeight: 20115482, status: 'connected', isActive: true, type: 'Native Layer 1' },
+    { symbol: 'SOL', name: 'Solana', icon: '🟣', network: 'Solana High-Performance Chain', usdPrice: 186.40, gasUSD: 0.02, rpcUrl: 'https://api.mainnet-beta.solana.com', latencyMs: 24, blockHeight: 274510911, status: 'connected', isActive: true, type: 'Native High-Speed SVM' },
+    { symbol: 'BTC', name: 'Bitcoin', icon: '🪙', network: 'Bitcoin Network', usdPrice: 94220.50, gasUSD: 2.10, rpcUrl: 'https://btc-mainnet.rpc.host', latencyMs: 210, blockHeight: 847122, status: 'degraded', isActive: true, type: 'Layer 1 Legacy PoW' }
+  ]);
+
+  // Financial ledgers
   const [balance, setBalance] = useState<MerchantBalance>(INITIAL_BALANCES);
   const [paymentLinks, setPaymentLinks] = useState<PaymentLink[]>(INITIAL_PAYMENT_LINKS);
   const [activePaymentLinkId, setActivePaymentLinkId] = useState<string>('link_saas_pro_1');
   const [transactions, setTransactions] = useState<Transaction[]>(INITIAL_TRANSACTIONS);
   const [webhooks, setWebhooks] = useState<WebhookEvent[]>(INITIAL_WEBHOOKS);
 
-  // Flash payment banner notification
+  // Success alert animation banner
   const [incomingSuccess, setIncomingSuccess] = useState<Transaction | null>(null);
 
-  // Find currently active item
+  // Sync balances holdings array keys if custom tokens get paid
+  useEffect(() => {
+    // Ensure all supported asset tickers are populated in the balance structure
+    setBalance(prev => {
+      const updatedHoldings = { ...prev.holdings };
+      let changed = false;
+      supportedAssets.forEach(asset => {
+        if (updatedHoldings[asset.symbol] === undefined) {
+          updatedHoldings[asset.symbol] = 0;
+          changed = true;
+        }
+      });
+      if (changed) {
+        return { ...prev, holdings: updatedHoldings };
+      }
+      return prev;
+    });
+  }, [supportedAssets]);
+
   const selectedPaymentLink = paymentLinks.find((link) => link.id === activePaymentLinkId) || paymentLinks[0];
 
-  // Callback to insert newly generated product links
+  // Callback to insert newly generated links
   const handleCreatePaymentLink = (name: string, description: string, price: number) => {
     const newId = `link_${Math.random().toString(36).substring(2, 9)}`;
     const newLink: PaymentLink = {
@@ -147,40 +179,37 @@ export default function App() {
     };
 
     setPaymentLinks((prev) => [newLink, ...prev]);
-    setActivePaymentLinkId(newId); // Focus right simulator to the new link immediately!
+    setActivePaymentLinkId(newId);
     
-    // Switch mobile user to checkout view so they can test their brand new link immediately!
-    setActiveMobileTab('checkout');
+    // Auto shift view to the visual checkout simulation tab so they can test immediately
+    setActiveView('checkout');
   };
 
-  // Callback once the client pays the invoice on the checkout sidebar
+  // Process transaction logic once payment resolves in checkout preview
   const handlePaymentSuccess = (newTx: Transaction) => {
-    // 1. Add direct payment to recent transaction stack
+    // 1. Queue into recent transaction ledger
     setTransactions((prev) => [newTx, ...prev]);
 
-    // 2. Adjust Balance ledger holdings
+    // 2. Adjust Balance ledger holdings dynamically using current live price of the selected asset
     const coinSymbol = newTx.cryptoSymbol;
+    const targetAsset = supportedAssets.find(a => a.symbol === coinSymbol);
+    const conversionRate = targetAsset ? targetAsset.usdPrice : 1.0;
+    const addedCryptoAmount = newTx.amountUSD / conversionRate;
+
     setBalance((prev) => {
-      // Find asset current mock conversion rate matching the checkout rate
-      let conversionRate = 1.0;
-      if (coinSymbol === 'BTC') conversionRate = 94220.50;
-      if (coinSymbol === 'ETH') conversionRate = 3254.12;
-      if (coinSymbol === 'SOL') conversionRate = 186.40;
-
-      const addedCryptoAmount = newTx.amountUSD / conversionRate;
-
+      const currentHoldings = prev.holdings[coinSymbol] !== undefined ? prev.holdings[coinSymbol] : 0;
       return {
         totalProcessedUSD: prev.totalProcessedUSD + newTx.amountUSD,
         availableUSD: prev.availableUSD + newTx.amountUSD,
-        pendingUSD: Math.max(0, prev.pendingUSD - 10), // Simulate pending clearance
+        pendingUSD: Math.max(0, prev.pendingUSD - 10),
         holdings: {
           ...prev.holdings,
-          [coinSymbol]: prev.holdings[coinSymbol] + addedCryptoAmount
+          [coinSymbol]: currentHoldings + addedCryptoAmount
         }
       };
     });
 
-    // 3. Increment counters on payment link structure
+    // 3. Increment counters
     setPaymentLinks((prev) => 
       prev.map((link) => 
         link.id === newTx.paymentLinkId 
@@ -189,7 +218,7 @@ export default function App() {
       )
     );
 
-    // 4. Dispatch a simulated developer webhook webhook event
+    // 4. Fire Webhook event payload
     const webhookId = `evt_${Math.random().toString(36).substring(2, 11)}`;
     const prettyJsonPayload = `{
   "id": "${webhookId}",
@@ -204,7 +233,7 @@ export default function App() {
       "amount_usd": ${newTx.amountUSD.toFixed(2)},
       "currency_usd": "usd",
       "status": "succeeded",
-      "payment_method_types": ["${coinSymbol.toLowerCase()}_${coinSymbol === 'SOL' ? 'phantom' : 'metamask'}"],
+      "payment_method_types": ["${coinSymbol.toLowerCase()}"],
       "customer": {
         "name": "${newTx.customerName}",
         "email": "${newTx.customerEmail}"
@@ -213,7 +242,7 @@ export default function App() {
         "symbol": "${coinSymbol}",
         "crypto_amount": "${newTx.cryptoAmount.toFixed(6)}",
         "tx_hash": "${newTx.txHash}",
-        "gas_used_usd": "${coinSymbol === 'SOL' ? '0.02' : coinSymbol === 'BTC' ? '2.10' : '4.80'}"
+        "gas_used_usd": "${(targetAsset?.gasUSD || 0.15).toFixed(2)}"
       }
     }
   }
@@ -240,119 +269,148 @@ export default function App() {
     setWebhooks([]);
   };
 
-  // Upgraded master premium elevation shadows with level depth (strict Openbricks 2.0 skeuomorphic drop shadow anchor stack)
   const premiumElevatedShadow = '1px 1px 0px #23211F, 2px 2px 0px #1E1B19, 3px 3px 0px #141211, 4px 4px 0px #0A0908, 5px 5px 0px #000000';
 
   return (
-    <div className="min-h-screen bg-[#000000] text-[#9B9691] font-sans antialiased pb-16 flex flex-col selection:bg-amber-500/20 selection:text-white">
-      {/* Top Main Brand Header */}
-      <header className="border-b-2 border-[#23211F] bg-[#0A0908] sticky top-0 z-40 shadow-[0_4px_30px_rgba(0,0,0,0.8)]">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-2.5">
-            <span className="text-xl font-bold bg-amber-500 text-black px-2.5 py-1.5 rounded-xl border-2 border-[#23211F] font-outfit select-none shadow-[2px_2px_0px_#23211F]">
+    <div className="min-h-screen bg-[#000000] text-[#9B9691] font-sans antialiased flex flex-col lg:flex-row selection:bg-amber-500/20 selection:text-white">
+      
+      {/* 1. DESKTOP SIDEBAR - Locked on the left */}
+      <aside className="hidden lg:flex flex-col w-64 h-screen fixed top-0 left-0 bg-[#0A0908] border-r-2 border-[#23211F] p-6 justify-between select-none z-30">
+        <div className="flex flex-col gap-8">
+          
+          {/* Logo brand */}
+          <div className="flex items-center gap-3">
+            <span className="text-sm font-bold bg-amber-500 text-black px-2.5 py-1.5 rounded-xl border-2 border-[#23211F] font-outfit shadow-[2px_2px_0px_#23211F]">
               S
             </span>
             <div className="flex flex-col">
-              <span className="text-sm font-outfit font-extrabold tracking-wider text-white leading-tight uppercase">SETTLΞR // ENGINΞ</span>
-              <span className="text-[10px] text-gray-400 font-mono tracking-tight">AUTONOMOUS MULTI-CHAIN BILLING</span>
+              <span className="text-xs font-outfit font-extrabold tracking-widest text-white leading-tight uppercase">SETTLΞR ENGINE</span>
+              <span className="text-[9px] text-gray-500 font-mono tracking-tight font-bold">MULTICHAIN ORACLE V3</span>
             </div>
           </div>
 
-          <div className="flex items-center gap-4">
-            {/* Live UTC Clock */}
-            <span className="hidden sm:inline-block text-[10px] font-mono text-gray-400 uppercase tracking-wider bg-[#141211] border-2 border-[#23211F] px-3 py-1 rounded-lg">
-              NODE TIME: 2026-06-04 12:18 UTC
-            </span>
-            <span className="text-xs font-semibold text-white font-mono flex items-center gap-1.5 bg-[#141211] px-3 py-1.5 rounded-lg border-2 border-[#23211F]">
-              <span className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse" /> Mainnet-V3 RPC
-            </span>
+          {/* Navigation link stacks */}
+          <div className="flex flex-col gap-1.5">
+            <span className="text-[9px] font-mono font-bold text-gray-500 uppercase tracking-widest px-2 mb-1.5 block">WORKSPACE SYSTEMS</span>
+            
+            <button
+              type="button"
+              onClick={() => { setActiveView('dashboard'); setInnerDashboardTab('links'); }}
+              className={`w-full flex items-center gap-3 px-3.5 py-3 rounded-xl text-xs font-semibold uppercase tracking-wider font-space-grotesk transition-all cursor-pointer border-2 ${
+                activeView === 'dashboard' && innerDashboardTab === 'links'
+                  ? 'bg-[#1E1B19] text-white border-[#23211F] shadow-[1px_1px_0px_#000]'
+                  : 'bg-transparent text-gray-400 border-transparent hover:text-white'
+              }`}
+            >
+              <LayoutDashboard className="w-4 h-4 text-amber-500" /> Merchant Overview
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setActiveView('checkout')}
+              className={`w-full flex items-center gap-3 px-3.5 py-3 rounded-xl text-xs font-semibold uppercase tracking-wider font-space-grotesk transition-all cursor-pointer border-2 ${
+                activeView === 'checkout'
+                  ? 'bg-[#1E1B19] text-white border-[#23211F] shadow-[1px_1px_0px_#000]'
+                  : 'bg-transparent text-gray-400 border-transparent hover:text-white'
+              }`}
+            >
+              <CreditCard className="w-4 h-4 text-amber-500" /> Checkout Terminal
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setActiveView('rpcs')}
+              className={`w-full flex items-center gap-3 px-3.5 py-3 rounded-xl text-xs font-semibold uppercase tracking-wider font-space-grotesk transition-all cursor-pointer border-2 ${
+                activeView === 'rpcs'
+                  ? 'bg-[#1E1B19] text-white border-[#23211F] shadow-[1px_1px_0px_#000]'
+                  : 'bg-transparent text-gray-400 border-transparent hover:text-white'
+              }`}
+            >
+              <Activity className="w-4 h-4 text-amber-500" /> RPC Node Engine
+            </button>
+
+            <span className="text-[9px] font-mono font-bold text-gray-500 uppercase tracking-widest px-2 mt-4 mb-1.5 block">LEDGERS & PIPELINES</span>
+
+            <button
+              type="button"
+              onClick={() => { setActiveView('dashboard'); setInnerDashboardTab('transactions'); }}
+              className={`w-full flex items-center gap-3 px-3.5 py-3 rounded-xl text-xs font-semibold uppercase tracking-wider font-space-grotesk transition-all cursor-pointer border-2 ${
+                activeView === 'dashboard' && innerDashboardTab === 'transactions'
+                  ? 'bg-[#1E1B19] text-white border-[#23211F] shadow-[1px_1px_0px_#000]'
+                  : 'bg-transparent text-gray-400 border-transparent hover:text-white'
+              }`}
+            >
+              <List className="w-4 h-4 text-blue-400" /> Settle Ledger
+            </button>
+
+            <button
+              type="button"
+              onClick={() => { setActiveView('dashboard'); setInnerDashboardTab('webhooks'); }}
+              className={`w-full flex items-center gap-3 px-3.5 py-3 rounded-xl text-xs font-semibold uppercase tracking-wider font-space-grotesk transition-all cursor-pointer border-2 ${
+                activeView === 'dashboard' && innerDashboardTab === 'webhooks'
+                  ? 'bg-[#1E1B19] text-white border-[#23211F] shadow-[1px_1px_0px_#000]'
+                  : 'bg-transparent text-gray-400 border-transparent hover:text-white'
+              }`}
+            >
+              <Layers className="w-4 h-4 text-emerald-400" /> Webhook Pipeline
+            </button>
           </div>
+        </div>
+
+        {/* Live indicator block */}
+        <div className="p-4 rounded-2xl bg-[#141211] border border-[#23211F] flex flex-col gap-2">
+          <div className="flex items-center gap-2">
+            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+            <span className="text-[9.5px] font-mono font-black text-white uppercase tracking-wider">Mainnet RPC online</span>
+          </div>
+          <span className="text-[9px] font-mono text-gray-500 leading-tight">Block height indexed globally. Oracle active.</span>
+        </div>
+      </aside>
+
+      {/* 2. MOBILE TOP HEADER - Sits on top of viewport on smaller devices */}
+      <header className="lg:hidden flex items-center justify-between px-4 h-15 bg-[#0A0908] border-b-2 border-[#23211F] sticky top-0 z-30 shadow-[0_4px_25px_rgba(0,0,0,0.6)]">
+        <div className="flex items-center gap-2.5">
+          <span className="text-xs font-bold bg-amber-500 text-black px-2 py-1 rounded-lg border border-[#23211F] font-outfit shadow-[1px_1px_0px_#000]">
+            S
+          </span>
+          <span className="text-xs font-outfit font-extrabold tracking-widest text-white uppercase">SETTLΞR ENGINE</span>
+        </div>
+        <div className="flex items-center gap-2">
+          <span className="text-[8px] font-mono text-gray-400 border border-[#23211F] px-2 py-0.5 bg-[#141211] rounded uppercase">
+            {testMode ? 'SANDBOX DEV' : 'LIVE'}
+          </span>
         </div>
       </header>
 
-      {/* Main Container Workspace */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 flex-1 w-full">
+      {/* 3. MAIN PRODUCT WORKSPACE */}
+      <main className="flex-1 min-h-screen lg:pl-64 flex flex-col pb-24 lg:pb-8 bg-[#000000]">
         
-        {/* Dynamic Payment Success Notification Toast inside page */}
-        {incomingSuccess && (
-          <div 
-            className="mb-6 p-4 rounded-xl bg-emerald-950/20 border-2 border-emerald-500/40 text-white flex items-center justify-between animate-bounce" 
-            style={{ boxShadow: premiumElevatedShadow }}
-          >
-            <div className="flex items-center gap-3">
-              <CheckCircle2 className="w-5 h-5 text-emerald-400 flex-shrink-0" />
-              <div>
-                <h5 className="text-xs font-semibold uppercase tracking-wider font-outfit text-emerald-400">Payment Succeeded (Webhook Transmitted)</h5>
-                <p className="text-sm text-gray-200 mt-0.5">
-                  Customer <strong className="text-white font-space-grotesk">{incomingSuccess.customerName}</strong> paid{' '}
-                  <strong className="text-white font-mono">${incomingSuccess.amountUSD.toFixed(2)}</strong> via {incomingSuccess.cryptoSymbol} address.
-                </p>
-              </div>
-            </div>
-            <span className="text-[10px] font-mono text-emerald-400 bg-emerald-950/50 px-2 py-1 rounded-lg border border-emerald-500/20">
-              Tx Settle Completed
-            </span>
-          </div>
-        )}
- 
-        {/* Intro Alert Box */}
-        <div 
-          className="mb-6 p-4 rounded-2xl bg-[#0A0908] border-2 border-[#23211F] flex flex-col sm:flex-row items-center gap-4 justify-between relative overflow-hidden" 
-          style={{ boxShadow: premiumElevatedShadow }}
-        >
-          <div className="absolute top-0 right-0 p-1 flex">
-            <Sparkles className="w-14 h-14 text-amber-500/5 rotate-12" />
-          </div>
-          <div className="flex items-center gap-3">
-            <div className="bg-amber-500/10 text-amber-500 rounded-xl p-2.5 border-2 border-[#23211F]">
-              <Cpu className="w-5 h-5 text-amber-500" />
-            </div>
-            <div>
-              <h4 className="text-xs font-outfit font-extrabold text-white tracking-widest uppercase">Quick Sandbox Instructions</h4>
-              <p className="text-xs text-gray-400 mt-1 max-w-2xl leading-normal font-sans">
-                This is a fully-fledged crypto payment gateway simulator running on <strong className="text-amber-500">SettlerEngine</strong>. Customize payment products inside <strong className="text-amber-500">Active Payment Links</strong> or compile new ones. Then, use the high-fidelity invoice widget on the right to connect simulated MetaMask / Phantom keys, and process transaction blocks to evaluate our developer webhooks.
-              </p>
-            </div>
-          </div>
-        </div>
-
-        {/* Mobile View Selector Tabs - ONLY visible on mobile screens */}
-        <div 
-          className="lg:hidden flex p-1.5 bg-[#0A0908] border-2 border-[#23211F] rounded-2xl mb-6 items-center w-full"
-          style={{ boxShadow: premiumElevatedShadow }}
-        >
-          <button
-            type="button"
-            onClick={() => setActiveMobileTab('dashboard')}
-            className={`flex-1 py-3 text-center rounded-xl text-xs font-space-grotesk font-semibold tracking-wide transition-all cursor-pointer flex items-center justify-center gap-2 ${
-              activeMobileTab === 'dashboard'
-                ? 'bg-[#1E1B19] text-white border-2 border-[#23211F] shadow-[1px_1px_0px_#000000]'
-                : 'text-gray-400 hover:text-white'
-            }`}
-          >
-            <span className="text-base">💻</span> Merchant Portal
-          </button>
-          <button
-            type="button"
-            onClick={() => setActiveMobileTab('checkout')}
-            className={`flex-1 py-3 text-center rounded-xl text-xs font-space-grotesk font-semibold tracking-wide transition-all cursor-pointer flex items-center justify-center gap-2 ${
-              activeMobileTab === 'checkout'
-                ? 'bg-[#1E1B19] text-white border-2 border-[#23211F] shadow-[1px_1px_0px_0px_#000000]'
-                : 'text-gray-400 hover:text-white'
-            }`}
-          >
-            <span className="text-base">💳</span> Checkout Terminal
-            <span className="bg-amber-500 text-black text-[9px] font-mono font-bold px-1.5 py-0.5 rounded-lg ml-0.5 shadow-[1px_1px_0px_#000]">
-              ${selectedPaymentLink.amountUSD.toFixed(0)}
-            </span>
-          </button>
-        </div>
-
-        {/* Core Layout Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
+        <div className="p-4 sm:p-6 lg:p-8 flex-1 w-full max-w-7xl mx-auto flex flex-col gap-6">
           
-          {/* Left Columns (3 span): Merchant portal (balances, charts, payment links, logs) */}
-          <div className={`${activeMobileTab === 'dashboard' ? 'block' : 'hidden lg:block'} lg:col-span-3`}>
+          {/* Real-time Payment Success Notification Toast inside page */}
+          {incomingSuccess && (
+            <div 
+              className="p-4 rounded-2xl bg-emerald-950/20 border-2 border-emerald-500/40 text-white flex items-center justify-between animate-bounce" 
+              style={{ boxShadow: premiumElevatedShadow }}
+            >
+              <div className="flex items-center gap-3">
+                <CheckCircle2 className="w-5 h-5 text-emerald-400 flex-shrink-0" />
+                <div>
+                  <h5 className="text-xs font-bold uppercase tracking-wider font-outfit text-emerald-400">Transaction Finalized On Ledger</h5>
+                  <p className="text-xs text-xs text-gray-200 mt-0.5">
+                    Customer <strong className="text-white font-space-grotesk">{incomingSuccess.customerName}</strong> paid{' '}
+                    <strong className="text-white font-mono">${incomingSuccess.amountUSD.toFixed(2)}</strong> via {incomingSuccess.cryptoSymbol} address.
+                  </p>
+                </div>
+              </div>
+              <span className="text-[9px] font-mono text-emerald-400 bg-emerald-950/50 px-2 py-1 rounded-lg border border-emerald-500/20 uppercase font-black tracking-wider">
+                COMMITTED
+              </span>
+            </div>
+          )}
+
+          {/* Render content based on activeView */}
+          {activeView === 'dashboard' && (
             <DeveloperDashboard 
               balance={balance}
               paymentLinks={paymentLinks}
@@ -362,64 +420,161 @@ export default function App() {
               setTestMode={setTestMode}
               onSelectPaymentLink={(link) => {
                 setActivePaymentLinkId(link.id);
-                // Also trigger mobile switch so customer can checkout straight away!
-                setActiveMobileTab('checkout');
+                setActiveView('checkout');
               }}
               activePaymentLinkId={activePaymentLinkId}
               onCreatePaymentLink={handleCreatePaymentLink}
               onClearLogs={handleClearLogs}
+              activeTab={innerDashboardTab}
+              onTabChange={setInnerDashboardTab}
             />
-          </div>
+          )}
 
-          {/* Right Column (2 span): Customer Checkout Preview Simulation Widget */}
-          <div className={`${activeMobileTab === 'checkout' ? 'block' : 'hidden lg:block'} lg:col-span-2`}>
-            <div className="sticky top-24 flex flex-col gap-6">
+          {activeView === 'checkout' && (
+            <div className="grid grid-cols-1 md:grid-cols-5 gap-6">
               
-              <CheckoutPreview 
-                paymentLink={selectedPaymentLink}
-                onPaymentSuccess={handlePaymentSuccess}
-                testMode={testMode}
-              />
-              
-              {/* Extra Simulated Metadata Panel with elevated rounded cards */}
-              <div 
-                className="p-5 rounded-2xl bg-[#0A0908] border-2 border-[#23211F] text-xs flex flex-col gap-2.5"
-                style={{ boxShadow: premiumElevatedShadow }}
-              >
-                <div className="flex items-center gap-2 text-white font-extrabold mb-1 uppercase text-[11px] tracking-wider font-outfit">
-                  <BookOpen className="w-4 h-4 text-amber-500" />
-                  SettlerEngine Protocol Overview
+              {/* Checkout widget takes 3 columns */}
+              <div className="md:col-span-3">
+                <CheckoutPreview 
+                  paymentLink={selectedPaymentLink}
+                  onPaymentSuccess={handlePaymentSuccess}
+                  testMode={testMode}
+                  supportedAssets={supportedAssets}
+                />
+              </div>
+
+              {/* Guide card takes 2 columns */}
+              <div className="md:col-span-2 flex flex-col gap-4">
+                <div 
+                  className="p-5 rounded-2xl bg-[#0A0908] border-2 border-[#23211F] text-xs flex flex-col gap-3"
+                  style={{ boxShadow: premiumElevatedShadow }}
+                >
+                  <div className="flex items-center gap-2 text-white font-extrabold pb-2 border-b border-[#23211F] uppercase text-[10px] tracking-widest font-outfit">
+                    <BookOpen className="w-4 h-4 text-amber-500 animate-pulse" />
+                    Checkout Sandbox Guide
+                  </div>
+                  <p className="text-gray-400 leading-normal font-sans">
+                    This simulated terminal lets developers evaluate the customer experience checkout flow. Click any link in the <strong>Merchant Overview</strong> to host it in this portal.
+                  </p>
+                  
+                  <div className="flex flex-col gap-2 mt-1">
+                    <label className="text-[8.5px] font-mono text-gray-500 uppercase font-bold">Currently SIMULATED PRODUCT</label>
+                    <select
+                      value={activePaymentLinkId}
+                      onChange={(e) => setActivePaymentLinkId(e.target.value)}
+                      className="px-3.5 py-2.5 text-xs text-white rounded-xl bg-[#141211] border-2 border-[#23211F] focus:outline-none focus:border-amber-500 cursor-pointer font-sans"
+                    >
+                      {paymentLinks.map(link => (
+                        <option key={link.id} value={link.id}>{link.name} — ${link.amountUSD.toFixed(0)}</option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div className="p-3.5 bg-[#000]/60 border border-[#23211F] rounded-xl text-gray-400 font-mono text-[9px] uppercase font-bold leading-relaxed mt-2 flex flex-col gap-1.5">
+                    <span>Active Gateway Mode: {testMode ? 'Sandbox Simulator' : 'Public Mainnet'}</span>
+                    <span>Direct Webhook Dispatch: Enabled</span>
+                    <span>Cryptographic SLA Hash: Active</span>
+                  </div>
                 </div>
-                <p className="text-gray-400 text-xs leading-relaxed font-sans">
-                  SettlerEngine resolves multi-chain settlement times by operating secondary state channels and decentralized oracle listening nodes. Customers execute a signature approval, sending tokens to the smart contract, and our system fires off webhooks with verified ledger blocks so your servers deliver products or services in under 8 seconds.
-                </p>
-                <div className="flex gap-2.5 mt-2">
-                  <span className="text-[10px] font-mono text-gray-400 bg-[#141211] border-2 border-[#23211F] px-2.5 py-1 rounded-lg">
-                    EVM Layer-2 Ready
-                  </span>
-                  <span className="text-[10px] font-mono text-gray-400 bg-[#141211] border-2 border-[#23211F] px-2.5 py-1 rounded-lg">
-                    Solana SVM Ready
-                  </span>
+
+                <div 
+                  className="p-5 rounded-2xl bg-[#0A0908] border-2 border-[#23211F] text-xs flex flex-col gap-2.5"
+                  style={{ boxShadow: premiumElevatedShadow }}
+                >
+                  <div className="flex items-center gap-2 text-white font-extrabold uppercase text-[10px] tracking-widest font-outfit">
+                    <Sliders className="w-4 h-4 text-amber-500" /> Node Parameters
+                  </div>
+                  <p className="text-gray-400 leading-relaxed font-sans">
+                    You can toggle which coins are active in checkout or change node properties (latency, gas fees, block numbers) via the <strong>RPC Node Engine</strong> settings. Any modification to endpoints automatically updates this terminal.
+                  </p>
                 </div>
               </div>
 
             </div>
-          </div>
+          )}
+
+          {activeView === 'rpcs' && (
+            <RpcConsole 
+              assets={supportedAssets}
+              setAssets={setSupportedAssets}
+            />
+          )}
 
         </div>
+
+        {/* Desktop Footer spacer */}
+        <footer className="mt-auto border-t-2 border-[#23211F]/30 py-6 bg-[#000] text-center text-xs text-gray-500">
+          <div className="max-w-7xl mx-auto px-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <p className="font-medium text-[10px] sm:text-xs">© 2026 SettlerEngine. Pitch-Dark Consensus Ledger Space.</p>
+            <div className="flex gap-4 font-mono text-[9px] uppercase font-bold">
+              <span className="hover:text-amber-500 transition-colors cursor-pointer text-gray-400">SMART CONTRACT: 0X92...E10B</span>
+              <span className="hover:text-amber-500 transition-colors cursor-pointer text-gray-400">DOCUMENTATION</span>
+            </div>
+          </div>
+        </footer>
+
       </main>
 
-      {/* Aesthetic Footer */}
-      <footer className="mt-20 border-t-2 border-[#23211F] py-8 bg-[#0A0908] text-center text-xs text-gray-500">
-        <div className="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <p className="font-medium">© 2026 SettlerEngine. Crafted in Pitch-Dark Sandbox Space.</p>
-          <div className="flex gap-4 font-mono text-[10px]">
-            <span className="hover:text-amber-500 transition-colors cursor-pointer">SMART CONTRACT: 0X92...E10B</span>
-            <span className="hover:text-amber-500 transition-colors cursor-pointer">DOCUMENTATION</span>
-            <span className="hover:text-amber-500 transition-colors cursor-pointer">DECENTRALIZED API</span>
-          </div>
-        </div>
-      </footer>
+      {/* 4. MOBILE STICKY BOTTOM NAVIGATION BAR */}
+      <nav className="lg:hidden fixed bottom-0 left-0 right-0 h-16 bg-[#0A0908] border-t-2 border-[#23211F] z-40 flex items-center justify-around pb-safe px-2 shadow-[0_-5px_25px_rgba(0,0,0,0.85)]">
+        
+        <button
+          type="button"
+          onClick={() => { setActiveView('dashboard'); setInnerDashboardTab('links'); }}
+          className={`flex flex-col items-center justify-center p-2 text-center transition-all ${
+            activeView === 'dashboard' && innerDashboardTab === 'links' ? 'text-amber-500' : 'text-gray-400'
+          }`}
+        >
+          <LayoutDashboard className="w-4 h-4" />
+          <span className="text-[9px] font-mono tracking-tighter mt-1 font-bold uppercase">Overview</span>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => setActiveView('checkout')}
+          className={`flex flex-col items-center justify-center p-2 text-center transition-all relative ${
+            activeView === 'checkout' ? 'text-amber-500' : 'text-gray-400'
+          }`}
+        >
+          <CreditCard className="w-4 h-4" />
+          <span className="text-[9px] font-mono tracking-tighter mt-1 font-bold uppercase">Checkout</span>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => setActiveView('rpcs')}
+          className={`flex flex-col items-center justify-center p-2 text-center transition-all ${
+            activeView === 'rpcs' ? 'text-amber-500' : 'text-gray-400'
+          }`}
+        >
+          <Activity className="w-4 h-4" />
+          <span className="text-[9px] font-mono tracking-tighter mt-1 font-bold uppercase">RPC Nodes</span>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => { setActiveView('dashboard'); setInnerDashboardTab('transactions'); }}
+          className={`flex flex-col items-center justify-center p-2 text-center transition-all ${
+            activeView === 'dashboard' && innerDashboardTab === 'transactions' ? 'text-blue-400' : 'text-gray-400'
+          }`}
+        >
+          <List className="w-4 h-4" />
+          <span className="text-[9px] font-mono tracking-tighter mt-1 font-bold uppercase">Ledger</span>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => { setActiveView('dashboard'); setInnerDashboardTab('webhooks'); }}
+          className={`flex flex-col items-center justify-center p-2 text-center transition-all ${
+            activeView === 'dashboard' && innerDashboardTab === 'webhooks' ? 'text-emerald-400' : 'text-gray-400'
+          }`}
+        >
+          <Layers className="w-4 h-4" />
+          <span className="text-[9px] font-mono tracking-tighter mt-1 font-bold uppercase">Webhooks</span>
+        </button>
+
+      </nav>
+
     </div>
   );
 }

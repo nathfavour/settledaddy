@@ -11,19 +11,14 @@ interface CheckoutPreviewProps {
   paymentLink: PaymentLink;
   onPaymentSuccess: (transaction: Transaction) => void;
   testMode: boolean;
+  supportedAssets: CryptoAsset[];
 }
-
-const SUPPORTED_CRPYTOS: Record<CryptoSymbol, CryptoAsset> = {
-  USDC: { symbol: 'USDC', name: 'USD Coin', icon: '🔵', network: 'EVM Polygon Network', usdPrice: 1.00, gasUSD: 0.15 },
-  ETH: { symbol: 'ETH', name: 'Ethereum', icon: '💎', network: 'Ethereum Layer 1', usdPrice: 3254.12, gasUSD: 4.80 },
-  SOL: { symbol: 'SOL', name: 'Solana', icon: '🟣', network: 'Solana High-Performance Chain', usdPrice: 186.40, gasUSD: 0.02 },
-  BTC: { symbol: 'BTC', name: 'Bitcoin', icon: '🪙', network: 'Bitcoin Network', usdPrice: 94220.50, gasUSD: 2.10 }
-};
 
 export default function CheckoutPreview({
   paymentLink,
   onPaymentSuccess,
-  testMode
+  testMode,
+  supportedAssets
 }: CheckoutPreviewProps) {
   // Checkout phases: 'form' -> 'wallet_connect' -> 'pay' -> 'processing' -> 'success'
   const [phase, setPhase] = useState<'form' | 'wallet_connect' | 'pay' | 'processing' | 'success'>('form');
@@ -32,8 +27,18 @@ export default function CheckoutPreview({
   const [customerEmail, setCustomerEmail] = useState('');
   const [customerName, setCustomerName] = useState('');
 
+  // Dynamic active assets from parent
+  const activeAssets = supportedAssets.filter(a => a.isActive);
+
   // Currently selected payment token
   const [selectedCrypto, setSelectedCrypto] = useState<CryptoSymbol>('USDC');
+
+  // Synchronize dynamic payment selection when configurations evolve
+  useEffect(() => {
+    if (activeAssets.length > 0 && !activeAssets.some(a => a.symbol === selectedCrypto)) {
+      setSelectedCrypto(activeAssets[0].symbol);
+    }
+  }, [activeAssets, selectedCrypto]);
 
   // Selected client wallet provider to hook
   const [selectedWallet, setSelectedWallet] = useState<'metamask' | 'phantom' | 'coinbase' | null>(null);
@@ -51,10 +56,10 @@ export default function CheckoutPreview({
   const [copiedHash, setCopiedHash] = useState(false);
 
   // Computations
-  const activeAsset = SUPPORTED_CRPYTOS[selectedCrypto];
-  const cryptoPrice = activeAsset.usdPrice;
+  const activeAsset = activeAssets.find(a => a.symbol === selectedCrypto) || activeAssets[0] || supportedAssets[0];
+  const cryptoPrice = activeAsset ? activeAsset.usdPrice : 1.0;
   const cryptoAmountNeeded = parseFloat((paymentLink.amountUSD / cryptoPrice).toFixed(6));
-  const gasAmountInCrypto = parseFloat((activeAsset.gasUSD / cryptoPrice).toFixed(6));
+  const gasAmountInCrypto = parseFloat(((activeAsset ? activeAsset.gasUSD : 0.1) / cryptoPrice).toFixed(6));
   const cryptoTotalAmount = parseFloat((cryptoAmountNeeded + gasAmountInCrypto).toFixed(6));
 
   // Auto-reset customer simulation fields if target invoice changes
@@ -263,14 +268,13 @@ export default function CheckoutPreview({
                 Select Your On-Chain Token
               </span>
               <div className="grid grid-cols-2 gap-2.5">
-                {(Object.keys(SUPPORTED_CRPYTOS) as CryptoSymbol[]).map((sym) => {
-                  const checkAsset = SUPPORTED_CRPYTOS[sym];
-                  const isCurrent = selectedCrypto === sym;
+                {activeAssets.map((asset) => {
+                  const isCurrent = selectedCrypto === asset.symbol;
                   return (
                     <button
-                      key={sym}
+                      key={asset.symbol}
                       type="button"
-                      onClick={() => setSelectedCrypto(sym)}
+                      onClick={() => setSelectedCrypto(asset.symbol)}
                       className={`p-3 rounded-2xl border-2 text-left cursor-pointer transition-all flex flex-col justify-between gap-1.5 relative ${
                         isCurrent 
                           ? 'border-amber-500 bg-[#1E1B19]' 
@@ -278,10 +282,10 @@ export default function CheckoutPreview({
                       }`}
                     >
                       <div className="flex items-center gap-2">
-                        <span className="text-lg">{checkAsset.icon}</span>
+                        <span className="text-lg">{asset.icon}</span>
                         <div>
-                          <span className="text-[11px] font-space-grotesk font-extrabold text-white block">{sym}</span>
-                          <span className="text-[8px] text-gray-500 font-mono tracking-tighter uppercase">{checkAsset.name}</span>
+                          <span className="text-[11px] font-space-grotesk font-extrabold text-white block">{asset.symbol}</span>
+                          <span className="text-[8.5px] text-gray-500 font-mono tracking-tighter uppercase">{asset.name}</span>
                         </div>
                       </div>
                       
@@ -291,7 +295,7 @@ export default function CheckoutPreview({
                       )}
 
                       <div className="mt-2 text-[9.5px] text-gray-400 font-mono font-bold">
-                        ${checkAsset.usdPrice.toLocaleString(undefined, { maximumFractionDigits: 0 })} USD
+                        ${asset.usdPrice.toLocaleString(undefined, { maximumFractionDigits: asset.usdPrice < 10 ? 4 : 2 })} USD
                       </div>
                     </button>
                   );
