@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { 
   Coins, Terminal, Shield, ArrowUpRight, Cpu, HelpCircle, 
   Layers, Wallet, BookOpen, AlertCircle, Sparkles, LogOut, CheckCircle2,
-  LayoutDashboard, CreditCard, Activity, Menu, X, List, Sliders, Globe
+  LayoutDashboard, CreditCard, Activity, Menu, X, List, Sliders, Globe,
+  MessageSquare, User, Laptop
 } from 'lucide-react';
 import { PaymentLink, Transaction, WebhookEvent, MerchantBalance, CryptoSymbol, CryptoAsset } from './types';
 import DeveloperDashboard from './components/DeveloperDashboard';
@@ -10,110 +11,32 @@ import CheckoutPreview from './components/CheckoutPreview';
 import RpcConsole from './components/RpcConsole';
 
 const INITIAL_BALANCES: MerchantBalance = {
-  totalProcessedUSD: 142490.00,
-  availableUSD: 136377.50,
-  pendingUSD: 6112.50,
+  totalProcessedUSD: 0.00,
+  availableUSD: 0.00,
+  pendingUSD: 0.00,
   holdings: {
-    BTC: 0.5841,
-    ETH: 15.6521,
-    SOL: 204.1503,
-    USDC: 24500.00
+    BTC: 0,
+    ETH: 0,
+    SOL: 0,
+    USDC: 0
   }
 };
 
 const INITIAL_PAYMENT_LINKS: PaymentLink[] = [
   {
     id: 'link_saas_pro_1',
-    name: 'Pro Tier SaaS Access (Monthly)',
+    name: 'Professional API Access Subscription',
     description: 'Generates API endpoints, background worker threads, and dual webhook sync alerts.',
     amountUSD: 49.00,
-    createdTime: '2026-05-15',
+    createdTime: '2026-06-06',
     isActive: true,
-    timesUsed: 124
-  },
-  {
-    id: 'link_mempool_feed',
-    name: 'Ultra-Low Latency Mempool RPC Access',
-    description: 'Instant transaction insertion queue direct to decentralized mining pools.',
-    amountUSD: 199.00,
-    createdTime: '2026-05-18',
-    isActive: true,
-    timesUsed: 42
-  },
-  {
-    id: 'link_web3_pass',
-    name: 'Hackathon Access Keycard (Soulbound)',
-    description: 'Provides verified entry pass directly indexed in the decentralized IPFS ledger.',
-    amountUSD: 19.00,
-    createdTime: '2026-05-22',
-    isActive: true,
-    timesUsed: 249
+    timesUsed: 0
   }
 ];
 
-const INITIAL_TRANSACTIONS: Transaction[] = [
-  {
-    id: 'ch_1a8f90b',
-    paymentLinkId: 'link_web3_pass',
-    productName: 'Hackathon Access Keycard (Soulbound)',
-    amountUSD: 19.00,
-    cryptoSymbol: 'SOL',
-    cryptoAmount: 0.1019,
-    customerEmail: 'vitalik@ethereum.org',
-    customerName: 'Vitalik Buterin',
-    status: 'succeeded',
-    txHash: 'B4nKsY9FhR8U3p2cAdQ6kWeZ1fVx8n5vY9Z8U3pwR2AdSolHash',
-    timestamp: '14:25:01'
-  },
-  {
-    id: 'ch_4d0ea22',
-    paymentLinkId: 'link_saas_pro_1',
-    productName: 'Pro Tier SaaS Access (Monthly)',
-    amountUSD: 49.00,
-    cryptoSymbol: 'USDC',
-    cryptoAmount: 49.00,
-    customerEmail: 'satoshi@bitcoin.org',
-    customerName: 'Satoshi Nakamoto',
-    status: 'succeeded',
-    txHash: '0x32e921fff3a0bde3c01c01e098a7293021fbc',
-    timestamp: '13:10:45'
-  }
-];
+const INITIAL_TRANSACTIONS: Transaction[] = [];
 
-const INITIAL_WEBHOOKS: WebhookEvent[] = [
-  {
-    id: 'evt_saas_success_init',
-    type: 'payment_intent.succeeded',
-    timestamp: '13:10:48',
-    status: 'sent',
-    payload: `{
-  "id": "evt_saas_success_init",
-  "object": "event",
-  "api_version": "2026-06-04",
-  "created": 1780512824,
-  "type": "payment_intent.succeeded",
-  "data": {
-    "object": {
-      "id": "pi_3M2eWKqS82eW",
-      "amount_usd": 49.00,
-      "currency_usd": "usd",
-      "status": "succeeded",
-      "payment_method_types": ["usdc_polygon"],
-      "customer": {
-        "name": "Satoshi Nakamoto",
-        "email": "satoshi@bitcoin.org"
-      },
-      "blockchain_receipt": {
-        "symbol": "USDC",
-        "crypto_amount": "49.00",
-        "tx_hash": "0x32e921fff3a0bde3c01c01e098a7293021fbc",
-        "gas_used_usd": "0.15"
-      }
-    }
-  }
-}`
-  }
-];
+const INITIAL_WEBHOOKS: WebhookEvent[] = [];
 
 export default function App() {
   // Test Mode switch
@@ -125,6 +48,68 @@ export default function App() {
   
   // Controls which dashboard sub-tab is currently visible
   const [innerDashboardTab, setInnerDashboardTab] = useState<'links' | 'transactions' | 'webhooks' | 'api'>('links');
+
+  // Interactive Web3 Wallet states - "We only use wallet connect here"
+  const [walletConnected, setWalletConnected] = useState<boolean>(false);
+  const [walletAddress, setWalletAddress] = useState<string | null>(null);
+  const [isSignconnecting, setIsSignconnecting] = useState<boolean>(false);
+  const [connectStepText, setConnectStepText] = useState<string>('');
+  const [showConnectModal, setShowConnectModal] = useState<boolean>(false);
+
+  // Compact developer discussion notes tray
+  const [showCommentTray, setShowCommentTray] = useState<boolean>(false);
+  const [newCommentText, setNewCommentText] = useState<string>('');
+  const [comments, setComments] = useState<{ id: string; author: string; text: string; time: string }[]>([
+    { id: '1', author: 'Nath Favour', text: 'Cleanest web3 gateway. The live node sync rules feel extremely premium and high-fidelity!', time: '1m ago' },
+    { id: '2', author: 'Satoshi (Node)', text: 'Multi-chain consensus pipeline is verified ready. Gas fees align nicely.', time: 'Just now' }
+  ]);
+
+  const handleAddComment = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newCommentText.trim()) return;
+    const fresh = {
+      id: Math.random().toString(),
+      author: walletConnected && walletAddress ? `Peer Node (${walletAddress.substring(0, 6)})` : 'Anonymous Node',
+      text: newCommentText,
+      time: 'Just now'
+    };
+    setComments(prev => [...prev, fresh]);
+    setNewCommentText('');
+  };
+
+  const handleWalletProviderClick = (walletName: string) => {
+    setIsSignconnecting(true);
+    const steps = [
+      'Locating local secure seed pipeline...',
+      'Opening WalletConnect peer linkage handshake...',
+      'Signing authorization secure credentials payload...',
+      'Successfully connected.'
+    ];
+
+    let current = 0;
+    setConnectStepText(steps[current]);
+    const interval = setInterval(() => {
+      current++;
+      if (current < steps.length) {
+        setConnectStepText(steps[current]);
+      } else {
+        clearInterval(interval);
+        let addr = '';
+        if (walletName === 'metamask') addr = '0x71C21A4e652a652A652a65223EA6e92E2a4921f0';
+        else if (walletName === 'phantom') addr = 'SolPrv7aB4nKsY9FhR8U3p2cAdQ6kWeZ1fVx89Z';
+        else addr = '0x0d3C01f6CE648dC8Fce2B1f3bE1ad3e0980C69D1';
+        setWalletAddress(addr);
+        setWalletConnected(true);
+        setIsSignconnecting(false);
+        setShowConnectModal(false);
+      }
+    }, 550);
+  };
+
+  const handleDisconnectWallet = () => {
+    setWalletAddress(null);
+    setWalletConnected(false);
+  };
 
   // Core global databases & on-chain dynamic assets config state
   const [supportedAssets, setSupportedAssets] = useState<CryptoAsset[]>([
@@ -272,129 +257,93 @@ export default function App() {
   const premiumElevatedShadow = '1px 1px 0px #23211F, 2px 2px 0px #1E1B19, 3px 3px 0px #141211, 4px 4px 0px #0A0908, 5px 5px 0px #000000';
 
   return (
-    <div className="min-h-screen bg-[#000000] text-[#9B9691] font-sans antialiased flex flex-col lg:flex-row selection:bg-amber-500/20 selection:text-white">
+    <div className="min-h-screen bg-[#000000] text-[#9B9691] font-sans antialiased flex flex-col selection:bg-amber-500/20 selection:text-white pb-32">
       
-      {/* 1. DESKTOP SIDEBAR - Locked on the left */}
-      <aside className="hidden lg:flex flex-col w-64 h-screen fixed top-0 left-0 bg-[#0A0908] border-r-2 border-[#23211F] p-6 justify-between select-none z-30">
-        <div className="flex flex-col gap-8">
-          
-          {/* Logo brand */}
-          <div className="flex items-center gap-3">
-            <span className="text-sm font-extrabold bg-amber-500 text-black px-3 py-1.5 rounded-xl border-2 border-[#23211F] font-outfit shadow-[1px_1px_0px_#23211F]">
-              S
-            </span>
-            <div className="flex flex-col">
-              <span className="text-xs font-outfit font-black tracking-widest text-white leading-none uppercase">SETTLΞR</span>
-              <span className="text-[10px] text-gray-500 font-mono tracking-tight mt-1 font-bold">MERCHANT TERMINAL</span>
-            </div>
-          </div>
-
-          {/* Navigation link stacks */}
-          <div className="flex flex-col gap-1.5">
-            <span className="text-[9px] font-mono font-bold text-gray-500 uppercase tracking-widest px-2 mb-1.5 block">SYSTEM CONTROL</span>
-            
-            <button
-              type="button"
-              onClick={() => { setActiveView('dashboard'); setInnerDashboardTab('links'); }}
-              className={`w-full flex items-center gap-3 px-3.5 py-3 rounded-xl text-xs font-semibold uppercase tracking-wider font-space-grotesk transition-all cursor-pointer border-2 ${
-                activeView === 'dashboard' && innerDashboardTab === 'links'
-                  ? 'bg-[#1E1B19] text-white border-[#23211F] shadow-[1px_1px_0px_#000]'
-                  : 'bg-transparent text-gray-400 border-transparent hover:text-white'
-              }`}
-            >
-              <LayoutDashboard className="w-4 h-4 text-amber-500" /> Dashboard Overview
-            </button>
-
-            <button
-              type="button"
-              onClick={() => setActiveView('checkout')}
-              className={`w-full flex items-center gap-3 px-3.5 py-3 rounded-xl text-xs font-semibold uppercase tracking-wider font-space-grotesk transition-all cursor-pointer border-2 ${
-                activeView === 'checkout'
-                  ? 'bg-[#1E1B19] text-white border-[#23211F] shadow-[1px_1px_0px_#000]'
-                  : 'bg-transparent text-gray-400 border-transparent hover:text-white'
-              }`}
-            >
-              <CreditCard className="w-4 h-4 text-amber-500" /> Checkout Port
-            </button>
-
-            <button
-              type="button"
-              onClick={() => setActiveView('rpcs')}
-              className={`w-full flex items-center gap-3 px-3.5 py-3 rounded-xl text-xs font-semibold uppercase tracking-wider font-space-grotesk transition-all cursor-pointer border-2 ${
-                activeView === 'rpcs'
-                  ? 'bg-[#1E1B19] text-white border-[#23211F] shadow-[1px_1px_0px_#000]'
-                  : 'bg-transparent text-gray-400 border-transparent hover:text-white'
-              }`}
-            >
-              <Activity className="w-4 h-4 text-amber-500" /> Assets & Networks
-            </button>
-
-            <span className="text-[9px] font-mono font-bold text-gray-500 uppercase tracking-widest px-2 mt-4 mb-1.5 block">LEDGERS & HOOKS</span>
-
-            <button
-              type="button"
-              onClick={() => { setActiveView('dashboard'); setInnerDashboardTab('transactions'); }}
-              className={`w-full flex items-center gap-3 px-3.5 py-3 rounded-xl text-xs font-semibold uppercase tracking-wider font-space-grotesk transition-all cursor-pointer border-2 ${
-                activeView === 'dashboard' && innerDashboardTab === 'transactions'
-                  ? 'bg-[#1E1B19] text-white border-[#23211F] shadow-[1px_1px_0px_#000]'
-                  : 'bg-transparent text-gray-400 border-transparent hover:text-white'
-              }`}
-            >
-              <List className="w-4 h-4 text-blue-400" /> Settle Ledger
-            </button>
-
-            <button
-              type="button"
-              onClick={() => { setActiveView('dashboard'); setInnerDashboardTab('webhooks'); }}
-              className={`w-full flex items-center gap-3 px-3.5 py-3 rounded-xl text-xs font-semibold uppercase tracking-wider font-space-grotesk transition-all cursor-pointer border-2 ${
-                activeView === 'dashboard' && innerDashboardTab === 'webhooks'
-                  ? 'bg-[#1E1B19] text-white border-[#23211F] shadow-[1px_1px_0px_#000]'
-                  : 'bg-transparent text-gray-400 border-transparent hover:text-white'
-              }`}
-            >
-              <Layers className="w-4 h-4 text-emerald-400" /> Webhook Pipeline
-            </button>
-          </div>
-        </div>
-
-        {/* Clean minimal brand signoff in footer margin */}
-        <div className="p-4 rounded-xl bg-[#141211] border border-[#23211F] flex flex-col gap-1.5">
-          <span className="text-[9px] font-mono font-extrabold text-white uppercase tracking-wider">SECURE DISPATCH</span>
-          <span className="text-[9px] font-medium text-gray-500 leading-normal">Fully encrypted peer-to-peer payment gateway.</span>
-        </div>
-      </aside>
-
-      {/* 2. MOBILE TOP HEADER - Sits on top of viewport on smaller devices */}
-      <header className="lg:hidden flex items-center justify-between px-4 h-15 bg-[#0A0908] border-b-2 border-[#23211F] sticky top-0 z-30 shadow-[0_4px_25px_rgba(0,0,0,0.6)]">
-        <div className="flex items-center gap-2.5">
-          <span className="text-xs font-extrabold bg-amber-500 text-black px-2.5 py-1 rounded-lg border border-[#23211F] font-outfit shadow-[1px_1px_0px_#000]">
+      {/* 1. GLOBAL PREMIUM TOPBAR SHARABLE HEADER */}
+      <header className="sticky top-0 z-30 w-full bg-[#0A0908] border-b-2 border-[#23211F] px-4 sm:px-8 py-4 flex items-center justify-between select-none">
+        
+        {/* Left: Premium branded clickable Logo */}
+        <button 
+          onClick={() => {
+            if (!walletConnected) {
+              setShowConnectModal(true);
+            }
+          }}
+          className="flex items-center gap-3 active:scale-95 transition-all text-left cursor-pointer group"
+        >
+          <div className="w-9 h-9 rounded-xl bg-amber-500 flex items-center justify-center font-outfit font-black text-black border-2 border-[#23211F] shadow-[1px_1px_0px_#23211F] group-hover:bg-amber-400">
             S
-          </span>
-          <span className="text-xs font-outfit font-extrabold tracking-widest text-white uppercase">SETTLΞR</span>
-        </div>
-        <div className="flex items-center gap-2">
-          <span className="text-[8.5px] font-mono text-gray-400 border border-[#23211F] px-2 py-0.5 bg-[#141211] rounded font-bold uppercase">
-            {testMode ? 'SANDBOX' : 'LIVE'}
-          </span>
+          </div>
+          <div className="flex flex-col">
+            <span className="text-xs sm:text-sm font-outfit font-black tracking-[0.25em] text-white leading-none uppercase group-hover:text-amber-500 transition-colors">
+              SETTLΞRDADDY
+            </span>
+            <span className="text-[9px] text-gray-500 font-mono tracking-wider mt-1 font-bold">PITCH-DARK GATEWAY</span>
+          </div>
+        </button>
+
+        {/* Right: Comments Tray & Connect Wallet Trigger */}
+        <div className="flex items-center gap-3.5">
+          {/* Discussion comments button */}
+          <button 
+            type="button"
+            onClick={() => setShowCommentTray(!showCommentTray)}
+            className="p-2.5 rounded-xl bg-[#141211] hover:bg-[#1E1B19] text-gray-400 hover:text-white transition-all border-2 border-[#23211F] cursor-pointer relative"
+            title="SaaS Terminal Logs & Remarks"
+          >
+            <MessageSquare className="w-4 h-4" />
+            {comments.length > 0 && (
+              <span className="absolute top-1 right-1 w-2 h-2 bg-amber-500 rounded-full border border-[#141211]" />
+            )}
+          </button>
+
+          {/* Web3 Wallet connect button. We only use wallet connect here */}
+          {walletConnected ? (
+            <div className="flex items-center gap-2">
+              <div className="hidden sm:flex flex-col items-end">
+                <span className="text-[8px] font-mono font-bold text-emerald-400 uppercase tracking-wider flex items-center gap-1">
+                  <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse" />
+                  SIGN SIGNATURE OK
+                </span>
+                <span className="text-[10px] text-gray-400 font-mono font-semibold uppercase">{walletAddress?.substring(0,6)}...{walletAddress?.substring(walletAddress.length - 4)}</span>
+              </div>
+              <button 
+                type="button"
+                onClick={handleDisconnectWallet}
+                className="p-2.5 rounded-xl bg-[#141211] hover:bg-[#1E1B19] text-red-400 hover:text-red-300 transition-all border-2 border-[#23211F] cursor-pointer"
+                title="Disconnect Wallet Signature"
+              >
+                <LogOut className="w-3.5 h-3.5" />
+              </button>
+            </div>
+          ) : (
+            <button 
+              type="button"
+              onClick={() => setShowConnectModal(true)}
+              className="px-4 py-2.5 rounded-xl text-[10px] sm:text-xs font-black font-space-grotesk text-black bg-amber-500 hover:bg-amber-400 transition-transform active:scale-95 cursor-pointer shadow-[2px_2px_0px_#000] border border-[#23211F] uppercase tracking-wider"
+            >
+              CONNECT WALLET
+            </button>
+          )}
         </div>
       </header>
 
-      {/* 3. MAIN PRODUCT WORKSPACE */}
-      <main className="flex-1 min-h-screen lg:pl-64 flex flex-col pb-24 lg:pb-8 bg-[#000000]">
+      {/* 2. MAIN PRODUCT WORKSPACE */}
+      <main className="flex-1 min-h-screen flex flex-col pb-32 bg-[#000000]">
         
         <div className="p-4 sm:p-6 lg:p-8 flex-1 w-full max-w-7xl mx-auto flex flex-col gap-6">
           
           {/* Real-time Payment Success Notification Toast inside page */}
           {incomingSuccess && (
             <div 
-              className="p-4 rounded-2xl bg-emerald-950/20 border-2 border-emerald-500/40 text-white flex items-center justify-between animate-bounce" 
+              className="p-4 rounded-2xl bg-emerald-950/20 border-2 border-emerald-500/40 text-white flex items-center justify-between" 
               style={{ boxShadow: premiumElevatedShadow }}
             >
               <div className="flex items-center gap-3">
                 <CheckCircle2 className="w-5 h-5 text-emerald-400 flex-shrink-0" />
                 <div>
                   <h5 className="text-xs font-bold uppercase tracking-wider font-outfit text-emerald-400">Transaction Finalized On Ledger</h5>
-                  <p className="text-xs text-xs text-gray-200 mt-0.5">
+                  <p className="text-xs text-gray-200 mt-0.5">
                     Customer <strong className="text-white font-space-grotesk">{incomingSuccess.customerName}</strong> paid{' '}
                     <strong className="text-white font-mono">${incomingSuccess.amountUSD.toFixed(2)}</strong> via {incomingSuccess.cryptoSymbol} address.
                   </p>
@@ -447,7 +396,7 @@ export default function App() {
                   style={{ boxShadow: premiumElevatedShadow }}
                 >
                   <div className="flex items-center gap-2 text-white font-extrabold pb-2 border-b border-[#23211F] uppercase text-[10px] tracking-widest font-outfit">
-                    <BookOpen className="w-4 h-4 text-amber-500 animate-pulse" />
+                    <BookOpen className="w-4 h-4 text-amber-500" />
                     Checkout Sandbox Guide
                   </div>
                   <p className="text-gray-400 leading-normal font-sans">
@@ -504,73 +453,245 @@ export default function App() {
           <div className="max-w-7xl mx-auto px-6 flex flex-col sm:flex-row items-center justify-between gap-4">
             <p className="font-medium text-[10px] sm:text-xs">© 2026 SettlerEngine. Pitch-Dark Consensus Ledger Space.</p>
             <div className="flex gap-4 font-mono text-[9px] uppercase font-bold">
-              <span className="hover:text-amber-500 transition-colors cursor-pointer text-gray-400">SMART CONTRACT: 0X92...E10B</span>
-              <span className="hover:text-amber-500 transition-colors cursor-pointer text-gray-400">DOCUMENTATION</span>
+              <span className="hover:text-amber-500 transition-colors cursor-pointer text-gray-400 font-extrabold">SMART CONTRACT: 0X92...E10B</span>
+              <span className="hover:text-amber-500 transition-colors cursor-pointer text-gray-400 font-extrabold">DOCUMENTATION</span>
             </div>
           </div>
         </footer>
 
       </main>
 
-      {/* 4. MOBILE STICKY BOTTOM NAVIGATION BAR */}
-      <nav className="lg:hidden fixed bottom-0 left-0 right-0 h-16 bg-[#0A0908] border-t-2 border-[#23211F] z-40 flex items-center justify-around pb-safe px-2 shadow-[0_-5px_25px_rgba(0,0,0,0.85)]">
+      {/* 3. FLOATING COZY BOTTOM NAV - Only 5 items max, text-labels completely removed */}
+      <nav className="fixed bottom-6 left-1/2 -translate-x-1/2 max-w-sm w-11/12 bg-[#141211] border-2 border-[#23211F] rounded-full h-14 z-40 flex items-center justify-around px-2.5 shadow-[0_8px_32px_rgba(0,0,0,0.85)] select-none">
         
         <button
           type="button"
           onClick={() => { setActiveView('dashboard'); setInnerDashboardTab('links'); }}
-          className={`flex flex-col items-center justify-center p-2 text-center transition-all ${
-            activeView === 'dashboard' && innerDashboardTab === 'links' ? 'text-amber-500' : 'text-gray-400'
+          className={`relative p-2.5 rounded-full transition-colors duration-200 cursor-pointer ${
+            activeView === 'dashboard' && innerDashboardTab === 'links' 
+              ? 'text-amber-500 bg-[#1E1B19]' 
+              : 'text-gray-400 hover:text-white hover:bg-[#1E1B19]/50'
           }`}
+          title="Overview"
         >
-          <LayoutDashboard className="w-4 h-4" />
-          <span className="text-[9px] font-mono tracking-tighter mt-1 font-bold uppercase">Overview</span>
+          <LayoutDashboard className="w-5 h-5" />
+          {activeView === 'dashboard' && innerDashboardTab === 'links' && (
+            <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-1.5 h-1.5 rounded-full bg-amber-500" />
+          )}
         </button>
 
         <button
           type="button"
           onClick={() => setActiveView('checkout')}
-          className={`flex flex-col items-center justify-center p-2 text-center transition-all relative ${
-            activeView === 'checkout' ? 'text-amber-500' : 'text-gray-400'
+          className={`relative p-2.5 rounded-full transition-colors duration-200 cursor-pointer ${
+            activeView === 'checkout' 
+              ? 'text-amber-500 bg-[#1E1B19]' 
+              : 'text-gray-400 hover:text-white hover:bg-[#1E1B19]/50'
           }`}
+          title="Checkout Invoice"
         >
-          <CreditCard className="w-4 h-4" />
-          <span className="text-[9px] font-mono tracking-tighter mt-1 font-bold uppercase">Checkout</span>
+          <CreditCard className="w-5 h-5" />
+          {activeView === 'checkout' && (
+            <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-1.5 h-1.5 rounded-full bg-amber-500" />
+          )}
         </button>
 
         <button
           type="button"
           onClick={() => setActiveView('rpcs')}
-          className={`flex flex-col items-center justify-center p-2 text-center transition-all ${
-            activeView === 'rpcs' ? 'text-amber-500' : 'text-gray-400'
+          className={`relative p-2.5 rounded-full transition-colors duration-200 cursor-pointer ${
+            activeView === 'rpcs' 
+              ? 'text-amber-500 bg-[#1E1B19]' 
+              : 'text-gray-400 hover:text-white hover:bg-[#1E1B19]/50'
           }`}
+          title="RPC Node Clusters"
         >
-          <Activity className="w-4 h-4" />
-          <span className="text-[9px] font-mono tracking-tighter mt-1 font-bold uppercase">RPC Nodes</span>
+          <Activity className="w-5 h-5" />
+          {activeView === 'rpcs' && (
+            <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-1.5 h-1.5 rounded-full bg-amber-500" />
+          )}
         </button>
 
         <button
           type="button"
           onClick={() => { setActiveView('dashboard'); setInnerDashboardTab('transactions'); }}
-          className={`flex flex-col items-center justify-center p-2 text-center transition-all ${
-            activeView === 'dashboard' && innerDashboardTab === 'transactions' ? 'text-blue-400' : 'text-gray-400'
+          className={`relative p-2.5 rounded-full transition-colors duration-200 cursor-pointer ${
+            activeView === 'dashboard' && innerDashboardTab === 'transactions' 
+              ? 'text-blue-400 bg-[#1E1B19]' 
+              : 'text-gray-400 hover:text-white hover:bg-[#1E1B19]/50'
           }`}
+          title="Settlement Receipts"
         >
-          <List className="w-4 h-4" />
-          <span className="text-[9px] font-mono tracking-tighter mt-1 font-bold uppercase">Ledger</span>
+          <List className="w-5 h-5" />
+          {activeView === 'dashboard' && innerDashboardTab === 'transactions' && (
+            <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-1.5 h-1.5 rounded-full bg-blue-400" />
+          )}
         </button>
 
         <button
           type="button"
           onClick={() => { setActiveView('dashboard'); setInnerDashboardTab('webhooks'); }}
-          className={`flex flex-col items-center justify-center p-2 text-center transition-all ${
-            activeView === 'dashboard' && innerDashboardTab === 'webhooks' ? 'text-emerald-400' : 'text-gray-400'
+          className={`relative p-2.5 rounded-full transition-colors duration-200 cursor-pointer ${
+            activeView === 'dashboard' && innerDashboardTab === 'webhooks' 
+              ? 'text-emerald-400 bg-[#1E1B19]' 
+              : 'text-gray-400 hover:text-white hover:bg-[#1E1B19]/50'
           }`}
+          title="Webhook Relays"
         >
-          <Layers className="w-4 h-4" />
-          <span className="text-[9px] font-mono tracking-tighter mt-1 font-bold uppercase">Webhooks</span>
+          <Layers className="w-5 h-5" />
+          {activeView === 'dashboard' && innerDashboardTab === 'webhooks' && (
+            <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-1.5 h-1.5 rounded-full bg-emerald-400" />
+          )}
         </button>
 
       </nav>
+
+      {/* 5. INTERACTIVE COZY COMMENTS OVERLAY PANEL */}
+      {showCommentTray && (
+        <div className="fixed inset-y-0 right-0 w-80 sm:w-96 bg-[#0A0908] border-l-2 border-[#23211F] shadow-[0_0_50px_rgba(0,0,0,0.9)] z-50 flex flex-col justify-between">
+          <div className="p-5 border-b border-[#23211F] flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <MessageSquare className="w-4 h-4 text-amber-500" />
+              <span className="text-xs font-outfit font-black uppercase tracking-wider text-white">Developer Discussion Logs</span>
+            </div>
+            <button 
+              onClick={() => setShowCommentTray(false)}
+              className="p-1 rounded-lg bg-[#141211] hover:bg-[#1E1B19] border border-[#23211F] text-gray-400 hover:text-white cursor-pointer"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          </div>
+
+          {/* Comments scrolling list */}
+          <div className="flex-1 overflow-y-auto p-5 flex flex-col gap-4">
+            {comments.map((cmt) => (
+              <div 
+                key={cmt.id} 
+                className="p-3.5 rounded-xl bg-[#141211] border border-[#23211F] text-xs flex flex-col gap-2"
+              >
+                <div className="flex items-center justify-between font-mono text-[9px] text-gray-500 font-bold">
+                  <span className="text-gray-300 font-extrabold uppercase">{cmt.author}</span>
+                  <span>{cmt.time}</span>
+                </div>
+                <p className="text-gray-400 font-sans leading-relaxed">{cmt.text}</p>
+              </div>
+            ))}
+          </div>
+
+          {/* New message input */}
+          <form onSubmit={handleAddComment} className="p-4 bg-[#141211] border-t-2 border-[#23211F] flex flex-col gap-2">
+            <input 
+              type="text" 
+              placeholder="Suggest configurations or logs..."
+              value={newCommentText}
+              onChange={(e) => setNewCommentText(e.target.value)}
+              className="w-full bg-[#000000] border border-[#23211F] px-3.5 py-2.5 rounded-xl text-xs text-white focus:outline-none focus:border-amber-500 font-sans"
+            />
+            <button 
+              type="submit"
+              className="w-full py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-black text-xs font-black font-space-grotesk uppercase tracking-wider cursor-pointer"
+            >
+              Submit Comment
+            </button>
+          </form>
+        </div>
+      )}
+
+      {/* 6. WALLETCONNECT AUTH MODAL */}
+      {showConnectModal && (
+        <div className="fixed inset-0 bg-[#000000]/80 backdrop-blur-md z-50 flex items-center justify-center p-4">
+          <div className="max-w-md w-full bg-[#0A0908] border-2 border-[#23211F] rounded-2xl overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.9)]">
+            
+            {/* Header */}
+            <div className="p-5 border-b border-[#23211F] flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Wallet className="w-5 h-5 text-amber-500" />
+                <span className="text-xs font-outfit font-black uppercase tracking-wider text-white">WalletConnect Client Signature</span>
+              </div>
+              <button 
+                onClick={() => setShowConnectModal(false)}
+                className="p-1 rounded-lg bg-[#141211] hover:bg-[#1E1B19] border border-[#23211F] text-gray-400 hover:text-white cursor-pointer"
+                disabled={isSignconnecting}
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            {/* Handshaking body */}
+            <div className="p-6 flex flex-col gap-4">
+              {isSignconnecting ? (
+                <div className="py-8 flex flex-col items-center justify-center text-center gap-4">
+                  <div className="w-10 h-10 border-4 border-[#23211F] border-t-amber-500 rounded-full animate-spin" />
+                  <div className="flex flex-col gap-1.5">
+                    <span className="text-xs font-mono font-bold text-gray-500 uppercase">ACTIVE Handshake sequence</span>
+                    <span className="text-xs font-mono font-black text-white px-4 py-2 bg-[#141211] rounded-xl border border-[#23211F]">{connectStepText}</span>
+                  </div>
+                </div>
+              ) : (
+                <>
+                  <p className="text-xs text-gray-400 leading-normal font-sans">
+                    Authenticate peer connections securely. Select your installed blockchain provider below to sign and activate peer-to-peer developer accounts.
+                  </p>
+                  
+                  <div className="grid grid-cols-1 gap-2.5 mt-2">
+                    <button 
+                      type="button"
+                      onClick={() => handleWalletProviderClick('metamask')}
+                      className="w-full p-3 bg-[#141211] hover:bg-[#1E1B19] border border-[#23211F] hover:border-amber-500/50 rounded-xl flex items-center justify-between transition-all group text-left cursor-pointer"
+                    >
+                      <div className="flex items-center gap-3">
+                        <span className="text-lg">🦊</span>
+                        <div className="flex flex-col">
+                          <span className="text-xs font-outfit font-extrabold text-white">MetaMask Ext</span>
+                          <span className="text-[9px] font-mono text-gray-500 font-bold uppercase">SECURE EVM DEPLOY</span>
+                        </div>
+                      </div>
+                      <span className="text-[10px] font-mono font-bold text-amber-500 group-hover:translate-x-1 transition-transform">CONNECT &rarr;</span>
+                    </button>
+
+                    <button 
+                      type="button"
+                      onClick={() => handleWalletProviderClick('phantom')}
+                      className="w-full p-3 bg-[#141211] hover:bg-[#1E1B19] border border-[#23211F] hover:border-amber-500/50 rounded-xl flex items-center justify-between transition-all group text-left cursor-pointer"
+                    >
+                      <div className="flex items-center gap-3">
+                        <span className="text-lg">👻</span>
+                        <div className="flex flex-col">
+                          <span className="text-xs font-outfit font-extrabold text-white">Phantom Wallet</span>
+                          <span className="text-[9px] font-mono text-gray-500 font-bold uppercase">HIGH-SPEED SVM COOPERATIVE</span>
+                        </div>
+                      </div>
+                      <span className="text-[10px] font-mono font-bold text-amber-500 group-hover:translate-x-1 transition-transform">CONNECT &rarr;</span>
+                    </button>
+
+                    <button 
+                      type="button"
+                      onClick={() => handleWalletProviderClick('coinbase')}
+                      className="w-full p-3 bg-[#141211] hover:bg-[#1E1B19] border border-[#23211F] hover:border-amber-500/50 rounded-xl flex items-center justify-between transition-all group text-left cursor-pointer"
+                    >
+                      <div className="flex items-center gap-3">
+                        <span className="text-lg">🔵</span>
+                        <div className="flex flex-col">
+                          <span className="text-xs font-outfit font-extrabold text-white">Coinbase Wallet</span>
+                          <span className="text-[9px] font-mono text-gray-500 font-bold uppercase">BASE NETWORK INTERCEPT</span>
+                        </div>
+                      </div>
+                      <span className="text-[10px] font-mono font-bold text-amber-500 group-hover:translate-x-1 transition-transform">CONNECT &rarr;</span>
+                    </button>
+                  </div>
+                </>
+              )}
+            </div>
+            
+            {/* Decentered branding footer line */}
+            <div className="px-6 py-4 bg-[#141211] border-t border-[#23211F] flex items-center justify-between text-[9px] font-mono text-gray-500 uppercase font-black tracking-widest">
+              <span>LEDGER PROTOCOL STANDARD</span>
+              <span>STANDBY</span>
+            </div>
+
+          </div>
+        </div>
+      )}
 
     </div>
   );
