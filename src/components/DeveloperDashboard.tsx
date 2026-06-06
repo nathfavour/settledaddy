@@ -169,21 +169,21 @@ export default function DeveloperDashboard({
           <div>
             <div className="flex items-center gap-2.5 flex-wrap">
               <h1 className="text-lg font-outfit font-extrabold text-white tracking-tight leading-none">
-                SettlerEngine Operational Console
+                Merchant Operations Console
               </h1>
-              <span className="text-[10px] font-mono border border-amber-500/30 text-amber-500 px-2 py-0.5 rounded-md bg-amber-950/20 font-bold uppercase tracking-wider">
-                Active Nodes
+              <span className="text-[10px] font-mono border border-[#23211F] text-amber-500 px-2 py-0.5 rounded-md bg-[#1E1B19] font-bold uppercase tracking-wider">
+                CONTROL PANEL
               </span>
             </div>
-            <p className="text-xs text-gray-400 mt-1 hover:text-gray-300 transition-colors">
-              Administrative interface for autonomous multi-chain checkout and on-chain verification contracts.
+            <p className="text-xs text-gray-400 mt-1 font-sans">
+              Create payments links, manage active receipts, and audit incoming transaction logs.
             </p>
           </div>
         </div>
 
         {/* Live / Test Toggle Switch with refined modern aesthetic */}
-        <div className="flex items-center gap-3 self-start md:self-auto bg-[#141413] border-2 border-[#23211F] p-2 rounded-xl shadow-[1px_1px_0px_#000]">
-          <span className={`text-[10px] font-mono font-extrabold tracking-wider ${!testMode ? 'text-emerald-400' : 'text-gray-500'}`}>LIVE NETWORK</span>
+        <div className="flex items-center gap-3 self-start md:self-auto bg-[#141211] border-2 border-[#23211F] p-2 rounded-xl shadow-[1px_1px_0px_#000]">
+          <span className={`text-[10px] font-mono font-extrabold tracking-wider ${!testMode ? 'text-emerald-400' : 'text-gray-500'}`}>LIVE GATEWAY</span>
           <button 
             type="button"
             onClick={() => setTestMode(!testMode)}
@@ -194,7 +194,7 @@ export default function DeveloperDashboard({
               className={`w-4 h-4 rounded-full transition-transform duration-300 ${testMode ? 'translate-x-6 bg-orange-500' : 'translate-x-0.5 bg-emerald-500'}`} 
             />
           </button>
-          <span className={`text-[10px] font-mono font-extrabold tracking-wider ${testMode ? 'text-orange-400' : 'text-gray-500'}`}>SANDBOX DEV</span>
+          <span className={`text-[10px] font-mono font-extrabold tracking-wider ${testMode ? 'text-orange-400' : 'text-gray-500'}`}>SANDBOX SIMULATOR</span>
         </div>
       </div>
 
@@ -209,7 +209,7 @@ export default function DeveloperDashboard({
           <div className="flex justify-between items-center mb-3">
             <span className="text-[10px] font-mono text-gray-400 font-extrabold tracking-widest uppercase">CONSOLIDATED VOLUME</span>
             <div className="p-1.5 rounded-lg bg-[#0A0908] border border-[#23211F]">
-              <TrendingUp className="w-3.5 h-3.5 text-emerald-400 group-hover:scale-110 duration-200" />
+              <TrendingUp className="w-3.5 h-3.5 text-emerald-400" />
             </div>
           </div>
           <div>
@@ -221,16 +221,16 @@ export default function DeveloperDashboard({
               <span className="text-[9px] font-mono text-emerald-400 font-bold">USD</span>
             </div>
             
-            {/* Holdings breakdown bubbles (Beautifully itemized micro elements) */}
+            {/* Holdings breakdown bubbles (Beautifully itemized micro elements with solid backgrounds) */}
             <div className="flex gap-1.5 mt-4 flex-wrap">
               {Object.entries(balance.holdings).map(([sym, qty]) => {
-                let badgeStyle = 'bg-amber-500/10 text-amber-500 border-amber-500/20';
-                if (sym === 'ETH') badgeStyle = 'bg-blue-500/10 text-blue-400 border-blue-500/20';
-                if (sym === 'SOL') badgeStyle = 'bg-purple-500/10 text-purple-400 border-purple-500/20';
-                if (sym === 'USDC') badgeStyle = 'bg-sky-500/10 text-sky-400 border-sky-500/20';
+                let badgeStyle = 'text-amber-500';
+                if (sym === 'ETH') badgeStyle = 'text-blue-400';
+                if (sym === 'SOL') badgeStyle = 'text-purple-400';
+                if (sym === 'USDC') badgeStyle = 'text-sky-400';
                 return (
-                  <span key={sym} className={`text-[9px] font-mono font-extrabold px-2 py-0.5 rounded-lg border flex items-center gap-1 ${badgeStyle}`}>
-                    <span className="w-1 h-1 rounded-full bg-current opacity-80" />
+                  <span key={sym} className={`text-[9px] font-mono font-bold px-2 py-0.5 rounded-lg border bg-[#1E1B19] border-[#23211F] flex items-center gap-1 ${badgeStyle}`}>
+                    <span className="w-1 h-1 rounded-full bg-current opacity-85" />
                     {sym}: {qty.toLocaleString(undefined, { maximumFractionDigits: sym === 'USDC' ? 0 : 4 })}
                   </span>
                 )
@@ -247,7 +247,7 @@ export default function DeveloperDashboard({
           <div className="flex justify-between items-center mb-3">
             <span className="text-[10px] font-mono text-gray-400 font-extrabold tracking-widest uppercase">AVAILABLE TO PAYOUT</span>
             <div className="p-1.5 rounded-lg bg-[#0A0908] border border-[#23211F]">
-              <Coins className="w-3.5 h-3.5 text-amber-500 animate-pulse" />
+              <Coins className="w-3.5 h-3.5 text-amber-500" />
             </div>
           </div>
           <div>
@@ -259,7 +259,7 @@ export default function DeveloperDashboard({
               <span className="text-[9px] font-mono text-amber-500/70 font-bold">LIQ</span>
             </div>
             <div className="text-[9.5px] text-gray-400 mt-4 font-mono font-semibold flex items-center gap-1.5 bg-[#0A0908] border border-[#23211F] px-2.5 py-1.5 rounded-xl w-fit">
-              <Zap className="w-3 h-3 text-amber-500 fill-amber-500/25" /> Ready for wallet sweep
+              <span className="w-1.5 h-1.5 rounded-full bg-amber-500" /> Ready for sweep withdrawal
             </div>
           </div>
         </div>
@@ -271,21 +271,20 @@ export default function DeveloperDashboard({
         >
           <div className="flex justify-between items-center mb-3">
             <span className="text-[10px] font-mono text-gray-400 font-extrabold tracking-widest uppercase">ESCROW CONSENSUS HOLD</span>
-            <span className="flex h-2 w-2 relative">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-orange-400 opacity-85"></span>
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-orange-500"></span>
+            <span className="flex h-1.5 w-1.5 relative">
+              <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-orange-500"></span>
             </span>
           </div>
           <div>
-            <span className="text-[10px] font-bold text-gray-500 font-mono tracking-wider block uppercase mb-1">MEMPOOL ESCROW</span>
+            <span className="text-[10px] font-bold text-gray-500 font-mono tracking-wider block uppercase mb-1">UNSETTLED BALANCE</span>
             <div className="flex items-baseline gap-1">
               <span className="text-3xl font-outfit text-white font-extrabold leading-none tracking-tight">
                 ${formatCurrency(balance.pendingUSD)}
               </span>
-              <span className="text-[10px] font-mono text-orange-400 font-bold">UNCONFIRMED</span>
+              <span className="text-[10px] font-mono text-orange-400 font-bold">PENDING</span>
             </div>
-            <p className="text-[9px] text-gray-400 mt-4 font-mono font-bold leading-none uppercase tracking-wide">
-              Waiting for {testMode ? '2 node signatures' : '12 block network verifications'}
+            <p className="text-[9px] text-gray-500 mt-4 font-mono font-bold leading-none uppercase tracking-wide">
+              Awaiting standard web gateway settlement cycles
             </p>
           </div>
         </div>
@@ -299,7 +298,7 @@ export default function DeveloperDashboard({
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div className="flex items-center gap-2">
             <BarChart2 className="w-4 h-4 text-amber-500" />
-            <h3 className="text-xs font-outfit font-extrabold text-white tracking-widest uppercase">Decentralized Revenue Streams</h3>
+            <h3 className="text-xs font-outfit font-extrabold text-white tracking-widest uppercase">Settled Volume Over Time</h3>
           </div>
           
           {/* Dynamic Range Filtering Buttons */}
@@ -466,21 +465,21 @@ export default function DeveloperDashboard({
                     onSubmit={handleCreate} 
                     className="p-5 rounded-2xl border-2 border-[#23211F] bg-[#0A0908] flex flex-col gap-4 overflow-hidden"
                   >
-                    <div className="flex justify-between items-center pb-2 border-b-2 border-[#23211F]">
+                     <div className="flex justify-between items-center pb-2 border-b-2 border-[#23211F]">
                       <span className="text-[10px] font-mono font-black text-amber-500 tracking-wider flex items-center gap-1.5">
-                        <Sparkles className="w-3.5 h-3.5" /> DEPLOY NEW MULTI-CHAIN PAYMENT PROTOCOL
+                        <Plus className="w-3.5 h-3.5" /> NEW PRODUCT CHECKOUT SETUP
                       </span>
-                      <span className="text-[9px] text-gray-500 font-mono font-bold">READY TO DEPLOY</span>
+                      <span className="text-[9px] text-gray-500 font-mono font-bold">DRAFT READY</span>
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div className="flex flex-col gap-1.5">
-                        <label htmlFor="pname" className="text-[9px] font-mono font-bold text-gray-400 uppercase tracking-wider">PRODUCT OR PRIVILEGE NAME</label>
+                        <label htmlFor="pname" className="text-[9px] font-mono font-bold text-gray-400 uppercase tracking-wider">PRODUCT OR ITEM NAME</label>
                         <input 
                           id="pname"
                           type="text" 
                           required 
-                          placeholder="e.g. Elite Developer API Key (SaaS Monthly)" 
+                          placeholder="e.g. Professional Plan Subscription" 
                           value={newLinkName}
                           onChange={(e) => setNewLinkName(e.target.value)}
                           className="px-3.5 py-2.5 text-xs text-white rounded-xl bg-[#141211] border-2 border-[#23211F] focus:outline-none focus:border-amber-500/80 font-sans"
@@ -488,7 +487,7 @@ export default function DeveloperDashboard({
                       </div>
 
                       <div className="flex flex-col gap-1.5">
-                        <label htmlFor="pprice" className="text-[9px] font-mono font-bold text-gray-400 uppercase tracking-wider">PEG PRICE VALUE (USD)</label>
+                        <label htmlFor="pprice" className="text-[9px] font-mono font-bold text-gray-400 uppercase tracking-wider">PRICE AT CHECKOUT (USD)</label>
                         <div className="relative">
                           <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-xs text-gray-500 font-mono font-black">$</span>
                           <input 
@@ -507,11 +506,11 @@ export default function DeveloperDashboard({
                     </div>
 
                     <div className="flex flex-col gap-1.5">
-                      <label htmlFor="pdesc" className="text-[9px] font-mono font-bold text-gray-400 uppercase tracking-wider">PRODUCT BRIEF DESCRIPTION</label>
+                      <label htmlFor="pdesc" className="text-[9px] font-mono font-bold text-gray-400 uppercase tracking-wider">BRIEF DESCRIPTION</label>
                       <input 
                         id="pdesc"
                         type="text" 
-                        placeholder="Generates private on-chain credentials, RPC routing nodes, and webhook deliveries..." 
+                        placeholder="Detailed subscription privileges or direct delivery terms..." 
                         value={newLinkDesc}
                         onChange={(e) => setNewLinkDesc(e.target.value)}
                         className="px-3.5 py-2.5 text-xs text-white rounded-xl bg-[#141211] border-2 border-[#23211F] focus:outline-none focus:border-amber-500/80 font-sans"
@@ -522,7 +521,7 @@ export default function DeveloperDashboard({
                       type="submit"
                       className="w-full py-3.5 rounded-xl text-xs font-black font-space-grotesk text-black bg-amber-500 hover:bg-amber-400 active:scale-98 transition-all cursor-pointer text-center shadow-[3px_3px_0px_#000] uppercase tracking-wider mt-1.5"
                     >
-                      Sign & Compile Decentralized Invoice Link
+                      Deploy Checkout Item Link
                     </button>
                   </motion.form>
                 )}
@@ -550,7 +549,7 @@ export default function DeveloperDashboard({
                       >
                         {isSelected && (
                           <div className="absolute top-2.5 right-2.5">
-                            <span className="text-[8px] font-mono border border-emerald-500/40 text-emerald-400 px-2 py-0.5 rounded-md bg-emerald-950/40 uppercase font-black tracking-wider animate-pulse">
+                            <span className="text-[8px] font-mono border border-[#23211F] text-amber-500 px-2 py-0.5 rounded-md bg-[#141211] uppercase font-black tracking-wider">
                               ACTIVE PREVIEW
                             </span>
                           </div>
@@ -652,7 +651,7 @@ export default function DeveloperDashboard({
                               </div>
                             </td>
                             <td className="p-4">
-                              <span className="inline-flex items-center gap-1.5 px-2 py-1 rounded-lg text-[9px] font-mono font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 uppercase tracking-wider">
+                              <span className="inline-flex items-center gap-1.5 px-2 py-1 rounded-lg text-[9px] font-mono font-bold bg-[#1E1B19] text-emerald-400 border border-[#23211F] uppercase tracking-wider">
                                 <CheckCircle2 className="w-3 h-3 text-emerald-400" /> CONFIRMED
                               </span>
                             </td>
@@ -711,21 +710,21 @@ export default function DeveloperDashboard({
                           onClick={() => setExpandedWebhookId(isExpanded ? null : hook.id)}
                           className="p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-[#141211]/40 border-b border-[#23211F]/30 cursor-pointer hover:bg-[#1E1B19]/30 transition-colors"
                         >
-                          <div className="flex flex-wrap items-center gap-2 text-[10px] font-mono">
+                           <div className="flex flex-wrap items-center gap-2 text-[10px] font-mono">
                             <span className="text-gray-500 font-bold">EVENT:</span>
                             <span className="text-white font-extrabold">{hook.id}</span>
-                            <span className="px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 uppercase font-black tracking-widest text-[8px]">
+                            <span className="px-2 py-0.5 rounded bg-[#1E1B19] text-emerald-400 border border-[#23211F] uppercase font-black tracking-widest text-[8px]">
                               {hook.type}
                             </span>
-                            <span className="px-2 py-0.5 rounded bg-amber-500/10 text-amber-500 border border-amber-500/20 font-bold text-[8px]">
-                              MOCK SERVER CALL
+                            <span className="px-2 py-0.5 rounded bg-[#141211] text-amber-500 border border-[#23211F] font-bold text-[8px]">
+                              SIMULATED DELIVERED HANDLER
                             </span>
                           </div>
 
                           <div className="flex items-center gap-3 text-[10.5px] font-mono self-end sm:self-auto">
                             <span className="text-gray-400 font-semibold">{hook.timestamp}</span>
-                            <span className="text-emerald-400 flex items-center gap-1 font-extrabold bg-emerald-950/20 px-2 py-0.5 rounded border border-emerald-500/20">
-                              ● Sent (200 OK)
+                            <span className="text-emerald-400 flex items-center gap-1 font-bold bg-[#1E1B19] px-2 py-0.5 rounded border border-[#23211F]">
+                              ● Completed (200 OK)
                             </span>
                             <ChevronRight className={`w-4 h-4 text-gray-400 transition-transform ${isExpanded ? 'rotate-90' : ''}`} />
                           </div>
@@ -826,12 +825,12 @@ export default function DeveloperDashboard({
                   </div>
                 </div>
 
-                <div className="p-4 rounded-2xl bg-[#0A0908] border border-orange-500/20 text-xs text-gray-400 leading-relaxed font-sans mt-1">
-                  <div className="flex items-center gap-2 text-orange-400 font-extrabold tracking-wide uppercase text-[10px] mb-1.5">
-                    <Zap className="w-3.5 h-3.5 text-orange-500" />
-                    Autonomous Oracle Sweep Trigger
+                <div className="p-4 rounded-2xl bg-[#0A0908] border border-[#23211F] text-xs text-gray-400 leading-relaxed font-sans mt-1">
+                  <div className="flex items-center gap-2 text-amber-500 font-extrabold tracking-wide uppercase text-[10px] mb-1.5">
+                    <span className="w-1.5 h-1.5 rounded-full bg-amber-500" />
+                    Automated Secure Withdrawal
                   </div>
-                  SettlerEngine automatically sweeps transactions into your registered decentralized multisig vault address on physical Mainnet-consensus cycles once transactions cross block confirmation depth parameters. No manual payout is ever required.
+                  SettlerEngine automatically settles multi-chain transactions directly to your registered fallback wallet address as soon as checkout completions are fully confirmed by the node networks. No manual claims are required.
                 </div>
               </div>
 
@@ -847,7 +846,7 @@ export default function DeveloperDashboard({
                         onClick={() => setDocTab(tab)}
                         className={`text-[9px] font-mono font-bold px-2 py-0.5 rounded-lg border-2 transition-all cursor-pointer uppercase ${
                           docTab === tab 
-                            ? 'bg-amber-500/20 border-amber-500/30 text-amber-500' 
+                            ? 'bg-[#1E1B19] border-[#23211F] text-amber-500' 
                             : 'border-[#23211F] text-gray-400 hover:text-gray-200'
                         }`}
                       >

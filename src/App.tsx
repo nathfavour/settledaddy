@@ -280,18 +280,18 @@ export default function App() {
           
           {/* Logo brand */}
           <div className="flex items-center gap-3">
-            <span className="text-sm font-bold bg-amber-500 text-black px-2.5 py-1.5 rounded-xl border-2 border-[#23211F] font-outfit shadow-[2px_2px_0px_#23211F]">
+            <span className="text-sm font-extrabold bg-amber-500 text-black px-3 py-1.5 rounded-xl border-2 border-[#23211F] font-outfit shadow-[1px_1px_0px_#23211F]">
               S
             </span>
             <div className="flex flex-col">
-              <span className="text-xs font-outfit font-extrabold tracking-widest text-white leading-tight uppercase">SETTLΞR ENGINE</span>
-              <span className="text-[9px] text-gray-500 font-mono tracking-tight font-bold">MULTICHAIN ORACLE V3</span>
+              <span className="text-xs font-outfit font-black tracking-widest text-white leading-none uppercase">SETTLΞR</span>
+              <span className="text-[10px] text-gray-500 font-mono tracking-tight mt-1 font-bold">MERCHANT TERMINAL</span>
             </div>
           </div>
 
           {/* Navigation link stacks */}
           <div className="flex flex-col gap-1.5">
-            <span className="text-[9px] font-mono font-bold text-gray-500 uppercase tracking-widest px-2 mb-1.5 block">WORKSPACE SYSTEMS</span>
+            <span className="text-[9px] font-mono font-bold text-gray-500 uppercase tracking-widest px-2 mb-1.5 block">SYSTEM CONTROL</span>
             
             <button
               type="button"
@@ -302,7 +302,7 @@ export default function App() {
                   : 'bg-transparent text-gray-400 border-transparent hover:text-white'
               }`}
             >
-              <LayoutDashboard className="w-4 h-4 text-amber-500" /> Merchant Overview
+              <LayoutDashboard className="w-4 h-4 text-amber-500" /> Dashboard Overview
             </button>
 
             <button
@@ -314,7 +314,7 @@ export default function App() {
                   : 'bg-transparent text-gray-400 border-transparent hover:text-white'
               }`}
             >
-              <CreditCard className="w-4 h-4 text-amber-500" /> Checkout Terminal
+              <CreditCard className="w-4 h-4 text-amber-500" /> Checkout Port
             </button>
 
             <button
@@ -326,10 +326,10 @@ export default function App() {
                   : 'bg-transparent text-gray-400 border-transparent hover:text-white'
               }`}
             >
-              <Activity className="w-4 h-4 text-amber-500" /> RPC Node Engine
+              <Activity className="w-4 h-4 text-amber-500" /> Assets & Networks
             </button>
 
-            <span className="text-[9px] font-mono font-bold text-gray-500 uppercase tracking-widest px-2 mt-4 mb-1.5 block">LEDGERS & PIPELINES</span>
+            <span className="text-[9px] font-mono font-bold text-gray-500 uppercase tracking-widest px-2 mt-4 mb-1.5 block">LEDGERS & HOOKS</span>
 
             <button
               type="button"
@@ -357,27 +357,24 @@ export default function App() {
           </div>
         </div>
 
-        {/* Live indicator block */}
-        <div className="p-4 rounded-2xl bg-[#141211] border border-[#23211F] flex flex-col gap-2">
-          <div className="flex items-center gap-2">
-            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-            <span className="text-[9.5px] font-mono font-black text-white uppercase tracking-wider">Mainnet RPC online</span>
-          </div>
-          <span className="text-[9px] font-mono text-gray-500 leading-tight">Block height indexed globally. Oracle active.</span>
+        {/* Clean minimal brand signoff in footer margin */}
+        <div className="p-4 rounded-xl bg-[#141211] border border-[#23211F] flex flex-col gap-1.5">
+          <span className="text-[9px] font-mono font-extrabold text-white uppercase tracking-wider">SECURE DISPATCH</span>
+          <span className="text-[9px] font-medium text-gray-500 leading-normal">Fully encrypted peer-to-peer payment gateway.</span>
         </div>
       </aside>
 
       {/* 2. MOBILE TOP HEADER - Sits on top of viewport on smaller devices */}
       <header className="lg:hidden flex items-center justify-between px-4 h-15 bg-[#0A0908] border-b-2 border-[#23211F] sticky top-0 z-30 shadow-[0_4px_25px_rgba(0,0,0,0.6)]">
         <div className="flex items-center gap-2.5">
-          <span className="text-xs font-bold bg-amber-500 text-black px-2 py-1 rounded-lg border border-[#23211F] font-outfit shadow-[1px_1px_0px_#000]">
+          <span className="text-xs font-extrabold bg-amber-500 text-black px-2.5 py-1 rounded-lg border border-[#23211F] font-outfit shadow-[1px_1px_0px_#000]">
             S
           </span>
-          <span className="text-xs font-outfit font-extrabold tracking-widest text-white uppercase">SETTLΞR ENGINE</span>
+          <span className="text-xs font-outfit font-extrabold tracking-widest text-white uppercase">SETTLΞR</span>
         </div>
         <div className="flex items-center gap-2">
-          <span className="text-[8px] font-mono text-gray-400 border border-[#23211F] px-2 py-0.5 bg-[#141211] rounded uppercase">
-            {testMode ? 'SANDBOX DEV' : 'LIVE'}
+          <span className="text-[8.5px] font-mono text-gray-400 border border-[#23211F] px-2 py-0.5 bg-[#141211] rounded font-bold uppercase">
+            {testMode ? 'SANDBOX' : 'LIVE'}
           </span>
         </div>
       </header>

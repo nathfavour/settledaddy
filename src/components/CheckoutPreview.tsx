@@ -183,19 +183,19 @@ export default function CheckoutPreview({
       style={{ boxShadow: tactileShadow }}
     >
       {/* Top micro gloss divider line */}
-      <div className="absolute top-0 left-0 right-0 h-[4px] bg-gradient-to-r from-transparent via-[#23211F] to-transparent" />
+      <div className="absolute top-0 left-0 right-0 h-[2px] bg-[#23211F]" />
 
       {/* Embedded Shopify/Stripe style checkout top header */}
-      <div className="flex justify-between items-center border-b border-[#23211F]/60 pb-4">
+      <div className="flex justify-between items-center border-b border-[#23211F] pb-4">
         <div className="flex items-center gap-2">
-          <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-          <span className="text-[10px] font-space-grotesk font-black text-white hover:text-amber-500 transition-colors uppercase tracking-widest">
-            SettlerEngine Interactive Checkout
+          <div className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+          <span className="text-[10px] font-space-grotesk font-bold text-white hover:text-amber-500 transition-colors uppercase tracking-widestLabel">
+            GATEWAY DISPATCH
           </span>
         </div>
         <div className="flex items-center gap-1 bg-[#141211] border border-[#23211F] px-2.5 py-1 rounded-xl">
           <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
-          <span className="text-[9px] font-mono font-bold text-gray-400 uppercase">SSL SECURED</span>
+          <span className="text-[9px] font-mono font-bold text-gray-400 uppercase">SECURED SESSION</span>
         </div>
       </div>
 
@@ -203,19 +203,19 @@ export default function CheckoutPreview({
       <div className="p-5 rounded-2xl bg-[#141211] border border-[#23211F] flex flex-col gap-3">
         <div className="flex justify-between items-start gap-4">
           <div>
-            <span className="text-[8.5px] font-mono font-extrabold text-amber-500/80 bg-amber-500/5 px-2 py-0.5 rounded border border-amber-500/25 uppercase tracking-wider">
+            <span className="text-[8.5px] font-mono font-bold text-amber-500 bg-[#1E1B19] px-2 py-0.5 rounded border border-[#23211F] uppercase tracking-wider">
               Item Checkout
             </span>
             <h4 className="text-sm font-outfit font-extrabold text-white mt-2 leading-snug">{paymentLink.name}</h4>
           </div>
           <div className="text-right flex-shrink-0">
-            <span className="text-[8.5px] font-mono font-extrabold text-gray-500 uppercase tracking-widest">AMOUNT DUE</span>
+            <span className="text-[8.5px] font-mono font-bold text-gray-500 uppercase tracking-widest">AMOUNT DUE</span>
             <div className="text-2xl font-outfit font-extrabold text-white leading-none mt-1">${paymentLink.amountUSD.toFixed(2)}</div>
-            <span className="text-[9px] text-emerald-400 font-mono font-bold mt-1.5 inline-block uppercase bg-emerald-500/5 border border-emerald-500/20 px-1.5 py-0.5 rounded-md">USD Pegged</span>
+            <span className="text-[9px] text-emerald-400 font-mono font-bold mt-1.5 inline-block uppercase bg-[#141211] border border-[#23211F] px-1.5 py-0.5 rounded-md text-emerald-500">USD Pegged</span>
           </div>
         </div>
         {paymentLink.description && (
-          <p className="text-xs text-gray-400 border-t border-[#23211F]/60 pt-2.5 mt-1 leading-relaxed font-sans">{paymentLink.description}</p>
+          <p className="text-xs text-gray-400 border-t border-[#23211F] pt-2.5 mt-1 leading-relaxed font-sans">{paymentLink.description}</p>
         )}
       </div>
 
@@ -437,7 +437,7 @@ export default function CheckoutPreview({
 
             {/* Smart contract escrow fee calculation details */}
             <div className="p-4 rounded-xl bg-[#0A0908] border-2 border-[#23211F] flex flex-col gap-2.5">
-              <span className="text-[8.5px] font-mono font-extrabold text-gray-400 block uppercase tracking-widest border-b border-[#23211F]/60 pb-1.5 mb-1 bg-transparent">
+              <span className="text-[8.5px] font-mono font-extrabold text-gray-400 block uppercase tracking-widest border-b border-[#23211F] pb-1.5 mb-1 bg-transparent">
                 Consensus Settlement Estimates
               </span>
               
@@ -446,7 +446,7 @@ export default function CheckoutPreview({
                 <span className="font-mono font-bold text-gray-300">1 {selectedCrypto} = ${cryptoPrice.toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
               </div>
 
-              <div className="flex justify-between items-center text-xs text-gray-400 border-t border-[#23211F]/60 pt-2.5 mt-1 font-medium">
+              <div className="flex justify-between items-center text-xs text-gray-400 border-t border-[#23211F] pt-2.5 mt-1 font-medium">
                 <span>Subtotal ({selectedCrypto})</span>
                 <span className="font-mono font-bold text-white bg-[#141211] px-2 py-0.5 rounded border border-[#23211F]">
                   {cryptoAmountNeeded.toFixed(6)} {selectedCrypto}
@@ -462,7 +462,7 @@ export default function CheckoutPreview({
 
               <div className="flex justify-between items-center text-xs text-white font-bold border-t border-[#23211F] pt-2.5 mt-1.5">
                 <span className="uppercase text-[10px] tracking-wider font-extrabold">Final Blockchain Charge</span>
-                <span className="font-mono text-amber-500 text-sm font-black bg-amber-500/5 border border-amber-500/20 px-2 py-0.5 rounded">
+                <span className="font-mono text-amber-500 text-sm font-black bg-[#1E1B19] border border-[#23211F] px-2 py-0.5 rounded">
                   {cryptoTotalAmount.toFixed(6)} {selectedCrypto}
                 </span>
               </div>
@@ -494,12 +494,7 @@ export default function CheckoutPreview({
 
         {/* STEP 4: Transaction Processing loading wheel with custom consensus statuses */}
         {phase === 'processing' && (
-          <motion.div 
-            key="p_processing"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="py-12 px-4 rounded-2xl bg-[#141211] border-2 border-[#23211F] flex flex-col items-center justify-center text-center gap-5"
-          >
+          <div className="py-12 px-4 rounded-2xl bg-[#141211] border-2 border-[#23211F] flex flex-col items-center justify-center text-center gap-5">
             {/* Spinning SVG circle */}
             <div className="relative w-16 h-16 flex items-center justify-center">
               <svg className="absolute w-full h-full -rotate-90">
@@ -527,14 +522,14 @@ export default function CheckoutPreview({
 
             <div>
               <h4 className="text-xs font-outfit font-extrabold text-white uppercase tracking-widest">TRANSMITTING LEDGER BLOCK</h4>
-              <div className="text-[10.5px] text-amber-500 font-mono mt-4 bg-amber-500/5 px-4 py-2 rounded-xl border border-amber-500/40 font-bold max-w-xs mx-auto break-words leading-relaxed">
+              <div className="text-[10.5px] text-amber-500 font-mono mt-4 bg-[#1E1B19] px-4 py-2 rounded-xl border border-[#23211F] font-bold max-w-xs mx-auto break-words leading-relaxed">
                 {paymentStep}
               </div>
               <div className="text-[9px] text-gray-500 font-mono mt-5 font-bold uppercase tracking-widest">
-                Network block confirmation: {paymentProgress}% settled
+                Settled parameter: {paymentProgress}%
               </div>
             </div>
-          </motion.div>
+          </div>
         )}
 
         {/* STEP 5: Receipt design mimicking a gorgeous tangible paper ticket summary */}
@@ -545,13 +540,13 @@ export default function CheckoutPreview({
             animate={{ scale: 1, opacity: 1 }}
             className="flex flex-col gap-5 text-center items-center"
           >
-            <div className="p-3.5 bg-emerald-950/20 border-2 border-emerald-500/45 rounded-full text-emerald-400">
-              <CheckCircle2 className="w-9 h-9 animate-bounce" />
+            <div className="p-3.5 bg-[#141211] border-2 border-[#23211F] rounded-full text-emerald-400">
+              <CheckCircle2 className="w-9 h-9" />
             </div>
 
             <div>
               <h3 className="text-base font-outfit font-extrabold text-white uppercase tracking-widest">Consensus Finalized</h3>
-              <p className="text-xs text-emerald-400/90 mt-1.5 font-semibold">Payment payload committed autonomously under 3.2 seconds.</p>
+              <p className="text-xs text-emerald-400 mt-1.5 font-semibold">Payment payload committed cleanly.</p>
             </div>
 
             {/* Simulated Printed Thermal Paper Ticket summary */}
@@ -581,19 +576,19 @@ export default function CheckoutPreview({
 
                 <div className="flex justify-between items-center text-gray-400 font-medium">
                   <span>Decentralized Token Settled</span>
-                  <span className="text-amber-500 font-mono font-black uppercase bg-amber-500/5 px-2 py-0.5 rounded border border-amber-500/25">
+                  <span className="text-amber-500 font-mono font-black uppercase bg-[#1E1B19] px-2 py-0.5 rounded border border-[#23211F]">
                     {(paymentLink.amountUSD / cryptoPrice).toFixed(6)} {selectedCrypto}
                   </span>
                 </div>
 
                 <div className="flex justify-between items-center text-gray-400 font-medium">
-                  <span>Wallet Connection Pipeline</span>
+                  <span>Connection Pipeline</span>
                   <span className="font-mono text-gray-300 uppercase text-[10px]">{selectedWallet} WebSDK</span>
                 </div>
               </div>
               
               <div className="border-t border-[#23211F] pt-3 mt-1">
-                <span className="text-[8.5px] font-mono text-gray-500 block uppercase font-bold tracking-wider">BLOCK EXTENSION AUDIT LINK</span>
+                <span className="text-[8.5px] font-mono text-gray-500 block uppercase font-bold tracking-wider">BLOCK AUDIT LINK</span>
                 <div className="flex items-center justify-between gap-1.5 mt-1.5">
                   <span className="font-mono text-[10.5px] text-gray-400 select-all truncate break-all pr-4 max-w-[80%] uppercase font-bold" title={simulatedTxHash}>
                     {simulatedTxHash}
